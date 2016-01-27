@@ -1,12 +1,12 @@
 {
   "name": "GsoArrangements",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "start": "node ./bin/www",
     "supervisor": "supervisor ./bin/www",
     "db_init:user": "createuser -U postgres -P -D -A db_user && psql -U postgres -f ./db_scripts/alter_user.sql",
-    "db_init:replace": "node ./user_pass_replace.js db_user password",
+    "db_init:replace": "node ./user_pass_replace.js db_user admin",
     "db_init:db": "psql -U db_user -f ./db_scripts/create_db_script.sql",
     "db_init:instruments": "psql -U db_user -f ./db_scripts/instruments_init_script.sql",
     "db_init": "npm run db_init:replace && npm run db_init:user && npm run db_init:db && npm_run db_init:instruments"
