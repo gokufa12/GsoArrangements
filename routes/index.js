@@ -7,6 +7,7 @@ var config = {
     port: 5432,
     database: 'postgres',	//Plan to change this in the future
     user: 'db_user',
+    password: 'admin'
 };
 var db = pgp(config);
 
