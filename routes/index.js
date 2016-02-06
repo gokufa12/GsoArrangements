@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var pgp = require('pg-promise')();
-//var path = require('path');
+var path = require('path');
 /* Config details for the database */
 var config = {
     host: 'localhost',
@@ -31,8 +31,7 @@ var review_select = "SELECT instrument.name, part_rating, part_difficulty "
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' });
-  //res.sendFile(path.join(__dirname, '../views', 'index.html'));
+  res.sendFile(path.join(__dirname, '../views', 'index.html'));
 });
 
 /** Generic post
