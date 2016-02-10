@@ -44,11 +44,20 @@ var instrument_view = "SELECT instrument_id, name as instrument FROM instruments
 var review_select = "SELECT instrument.name, part_rating, part_difficulty "
             + "FROM review NATURAL JOIN reviewer NATURAL JOIN instrument "
             + "WHERE song_id = $1";
+var instrument_select_all = "SELECT * FROM instrument";
 
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
   res.sendFile(path.join(__dirname, '../views', 'index.html'));
+});
+
+router.get('/arranger', function(req, res, next) {
+  res.sendFile(path.join(__dirname, '../views', 'arranger.html'));
+});
+
+router.get('/reviewer', function(req, res, next) {
+  res.sendFile(path.join(__dirname, '../views', 'reviewer.html'));
 });
 
 /** Generic post
@@ -154,7 +163,7 @@ router.delete('/api/v1/song/:song_id', function(req, res) {
 //Reviewer Create
 router.post('/api/v1/reviewer', function(req, res) {
     console.log('data: ' + req.body.name + ' ' + req.body.email);
-    var vals = [req.body.name, req.body.instrument_id, req.body.email];
+    var vals = [req.body.name, (req.body.instrument_id != null ? req.body.instrument_id : 5), req.body.email];
     executePair([reviewer_insert, reviewer_select_all], vals, res);
 });
 
@@ -207,6 +216,13 @@ router.delete('/api/v1/review/:review_id', function(req, res) {
     var vals = [req.params.review_id];
     console.log("doing delete");
     executePair([review_delete, review_select_all], vals, res);    
+});
+
+/* Instrument CRUD */
+//Review Get
+router.get('/api/v1/instrument', function(req, res) {
+   console.log("doing get");
+   executeQuery(instrument_select_all,[],res);
 });
 
 module.exports = router;
