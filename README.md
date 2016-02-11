@@ -18,10 +18,14 @@ This project is a web app to manage a database of musical arrangements. This pro
  
 # Installing
 
-After you've gotten the project, you need to make sure you have PostgreSQL set up.
-You'll also need to change your package.json to replace 'db_user' and 'db_password' with the user and password you will be using.
+After you've gotten the project, you need to make sure you have PostgreSQL set up. Version 9.5 is what is currently supported.
+You'll also need to change your package.json to replace 'db_user' and 'admin' with the user and password you will be using.
 
-Run ```npm install``` and follow the prompts, which will set up your database and local modules.
+Run the following and follow the prompts, which will set up your database and local modules.
+
+```npm run db_init```
+
+```npm install```
 
 # Running
 
