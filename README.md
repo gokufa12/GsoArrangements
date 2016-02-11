@@ -29,6 +29,6 @@ Run the following and follow the prompts, which will set up your database and lo
 
 # Running
 
-Run ```node app.js``` to start the server, which defaults to http://localhost:3000.
+Run ```npm start``` to start the server, which defaults to http://localhost:3000.
 
-You can also use ```node run supervisor``` if you want to have it run supervisor to watch for changes as you develop.
+You can also use ```npm run supervisor``` if you want to have it run supervisor to watch for changes as you develop.
