@@ -13,38 +13,35 @@ var config = {
 var db = pgp(config);
 
 /* SQL */
-var arranger_insert = "INSERT INTO arranger (name, \"e-mail\") VALUES ($1,$2)";
-var arranger_select_all = "SELECT * FROM arranger ORDER BY name ASC";
-var arranger_select = "SELECT arranger_id FROM arranger WHERE name = $1";
-var arranger_update = "UPDATE arranger SET name=$1, \"e-mail\"=$2 WHERE arranger_id=$3 RETURNING *";
+var user_insert = "INSERT INTO gso_user (name, \"e-mail\") VALUES ($1,$2)";
+var user_select_all = "SELECT * FROM gso_user ORDER BY name ASC";
+var user_select = "SELECT user_id FROM gso_user WHERE name = $1";
+var user_select_one = "SELECT * FROM gso_user WHERE user_id=$1";
+var user_update = "UPDATE gso_user SET name=$1, \"e-mail\"=$2 WHERE user_id=$3 RETURNING *";
 //TODO: Delete will have to cascade to satisfy foreign key constraints
-var arranger_delete = "DELETE FROM arranger WHERE arranger_id=$1";
+var user_delete = "DELETE FROM gso_user WHERE user_id=$1";
 
-var song_insert = "INSERT INTO song (arranger_id, title, date) VALUES ($1,$2,$3)";
-var song_select_all = "SELECT * FROM song";
+var song_insert = "INSERT INTO song (user_id, title, game_title, date) VALUES ($1,$2,$3,$4)";
+var song_select_all = "SELECT song.*, gso_user.name FROM song NATURAL JOIN gso_user";
+var song_by_user = "SELECT song.*, gso_user.name FROM song NATURAL JOIN gso_user WHERE user_id=$1";
 var song_update = "UPDATE song SET title=$1, date=$2 WHERE song_id=$3";
 //TODO: Delete will have to cascade to satisfy foreign key constraints
 var song_delete = "DELETE FROM song WHERE song_id=$1";
-
-var reviewer_insert = "INSERT INTO reviewer (name, instrument_id, \"e-mail\") VALUES ($1,$2,$3)";
-var reviewer_select_all = "SELECT * FROM reviewer";
-var reviewer_update = "UPDATE reviewer SET name=$1, instrument_id=$2, \"e-mail\"=$3 WHERE reviewer_id=$4";
-//TODO: Delete will have to cascade to satisfy foreign key constraints
-var reviewer_delete = "DELETE FROM reviewer WHERE reviewer_id=$1";
 
 var review_insert = "INSERT INTO review (song_id, reviewer_id, overall_rating, part_rating, part_difficulty, comments) VALUES($1,$2,$3,$4,$5,$6)";
 var review_select_all = "SELECT * FROM review";
 var review_update = "UPDATE review SET overall_rating=$1, part_rating=$2, part_difficulty=$3, comments=$4 WHERE song_id=$5 AND reviewer_id=$6";
 var review_delete = "DELETE FROM review WHERE song_id=$1 AND reviewer_id=$2";
 
-var song_title_arranger_select = "SELECT song_id FROM song NATURAL JOIN arranger WHERE title = $1 AND name = $2";
+var song_title_user_select = "SELECT song_id FROM song NATURAL JOIN gso_user WHERE title = $1 AND name = $2";
 var reviewer_select = "SELECT name FROM reviewer";
 var instrument_view = "SELECT instrument_id, name as instrument FROM instruments "
             + "NATURAL JOIN $1 ON instrument_id";
-var review_select = "SELECT instrument.name, part_rating, part_difficulty "
-            + "FROM review NATURAL JOIN reviewer NATURAL JOIN instrument "
+var review_select = "SELECT instrument.name as instrument, overall_rating, part_rating, part_difficulty, comments "
+            + "FROM review LEFT JOIN instrument ON review.instrument_id = instrument.instrument_id "
             + "WHERE song_id = $1";
 var instrument_select_all = "SELECT * FROM instrument";
+var orchestra_select_all = "SELECT * FROM orchestra";
 
 
 /* GET home page. */
@@ -52,12 +49,16 @@ router.get('/', function(req, res, next) {
   res.sendFile(path.join(__dirname, '../views', 'index.html'));
 });
 
-router.get('/arranger', function(req, res, next) {
-  res.sendFile(path.join(__dirname, '../views', 'arranger.html'));
+router.get('/user', function(req, res, next) {
+  res.sendFile(path.join(__dirname, '../views', 'user.html'));
 });
 
-router.get('/reviewer', function(req, res, next) {
-  res.sendFile(path.join(__dirname, '../views', 'reviewer.html'));
+router.get('/arrangements', function(req, res, next) {
+  res.sendFile(path.join(__dirname, '../views', 'user_profile.html'));
+});
+
+router.get('/song', function(req, res, next) {
+  res.sendFile(path.join(__dirname, '../views', 'song.html'));
 });
 
 /** Generic post
@@ -89,6 +90,7 @@ function executePair(sqlArray, valArray, res) {
 function executeQuery(sql, valArray, res) {
     db.query(sql,valArray)
     .then(function(data) {
+        console.log(sql);
         console.log(data);
         res.status(200).json(data);
     })
@@ -101,31 +103,37 @@ function executeQuery(sql, valArray, res) {
 /* Arranger CRUD */
 
 //Arranger Create
-router.post('/api/v1/arranger', function(req, res) {
+router.post('/api/v1/user', function(req, res) {
     console.log('data: ' + req.body.name + ' ' + req.body.email);
     var vals = [req.body.name, req.body.email];
-    executePair([arranger_insert, arranger_select_all], vals, res);
+    executePair([user_insert, user_select_all], vals, res);
 });
 
-//Arranger Get
-router.get('/api/v1/arranger', function(req, res) {
+//User Get
+router.get('/api/v1/user', function(req, res) {
    console.log("doing get");
-   executeQuery(arranger_select_all,[],res);
+   executeQuery(user_select_all,[],res);
 });
 
-//Arranger Update
-router.put('/api/v1/arranger', function(req, res) {
-    var vals = [req.body.name, req.body.email, req.body.arranger_id]
+//User Get One
+router.get('/api/v1/user/:user_id', function(req, res) {
+   console.log('get with Id: ' + req.params.user_id);
+   executeQuery(user_select_one,[req.params.user_id],res);
+});
+
+//User Update
+router.put('/api/v1/user', function(req, res) {
+    var vals = [req.body.name, req.body.email, req.body.user_id]
     console.log("doing update");
-    executeQuery(arranger_update,vals,res);
+    executeQuery(user_update,vals,res);
 });
 
-//Arranger delete
-router.delete('/api/v1/arranger/:arranger_id', function(req, res) {
-    console.log('Id: ' + req.params.arranger_id);
-    var vals = [req.params.arranger_id];
+//User delete
+router.delete('/api/v1/user/:user_id', function(req, res) {
+    console.log('Id: ' + req.params.user_id);
+    var vals = [req.params.user_id];
     console.log("doing delete");
-    executePair([arranger_delete, arranger_select_all], vals, res);    
+    executePair([user_delete, user_select_all], vals, res);    
 });
 
 /* Song CRUD */
@@ -133,7 +141,7 @@ router.delete('/api/v1/arranger/:arranger_id', function(req, res) {
 //Song Create
 router.post('/api/v1/song', function(req, res) {
     console.log('data: ' + req.body.title + ' ' + req.body.date);
-    var vals = [req.body.arranger_id, req.body.title, req.body.date];
+    var vals = [req.body.user_id, req.body.title, req.body.game_title, req.body.date];
     executePair([song_insert, song_select_all], vals, res);
 });
 
@@ -141,6 +149,13 @@ router.post('/api/v1/song', function(req, res) {
 router.get('/api/v1/song', function(req, res) {
    console.log("doing get");
    executeQuery(song_select_all,[],res);
+});
+
+//Song Get
+router.get('/api/v1/user/:user_id/song', function(req, res) {
+   console.log('get with user_id: ' + req.params.user_id);
+   console.log(song_by_user);
+   executeQuery(song_by_user,[req.params.user_id],res);
 });
 
 //Song Update
@@ -158,36 +173,6 @@ router.delete('/api/v1/song/:song_id', function(req, res) {
     executePair([song_delete, song_select_all], vals, res);    
 });
 
-/* Reviewer CRUD */
-
-//Reviewer Create
-router.post('/api/v1/reviewer', function(req, res) {
-    console.log('data: ' + req.body.name + ' ' + req.body.email);
-    var vals = [req.body.name, (req.body.instrument_id != null ? req.body.instrument_id : 5), req.body.email];
-    executePair([reviewer_insert, reviewer_select_all], vals, res);
-});
-
-//Reviewer Get
-router.get('/api/v1/reviewer', function(req, res) {
-   console.log("doing get");
-   executeQuery(reviewer_select_all,[],res);
-});
-
-//Reviewer Update
-router.put('/api/v1/reviewer', function(req, res) {
-    var vals = [req.body.name, req.body.instrument_id, req.body.email, req.body.reviewer_id];
-    console.log("doing update");
-    executeQuery(reviewer_update,vals,res);
-});
-
-//Reviewer delete
-router.delete('/api/v1/reviewer/:reviewer_id', function(req, res) {
-    console.log('Id: ' + req.params.reviewer_id);
-    var vals = [req.params.reviewer_id];
-    console.log("doing delete");
-    executePair([reviewer_delete, reviewer_select_all], vals, res);    
-});
-
 /* Review CRUD */
 
 //Review Create
@@ -201,6 +186,12 @@ router.post('/api/v1/review', function(req, res) {
 router.get('/api/v1/review', function(req, res) {
    console.log("doing get");
    executeQuery(review_select_all,[],res);
+});
+
+//Review Get for Song
+router.get('/api/v1/song/:song_id/review', function(req, res) {
+   console.log("doing get for song_id: " + req.params.song_id);
+   executeQuery(review_select,[req.params.song_id],res);
 });
 
 //Review Update
@@ -219,10 +210,21 @@ router.delete('/api/v1/review/:review_id', function(req, res) {
 });
 
 /* Instrument CRUD */
-//Review Get
 router.get('/api/v1/instrument', function(req, res) {
    console.log("doing get");
    executeQuery(instrument_select_all,[],res);
 });
+
+/* Orchestra CRUD */
+router.get('/api/v1/orchestra', function(req,res) {
+   console.log("get orchestra");
+   executeQuery(orchestra_select_all,[],res);
+});
+
+/* Game CRUD */
+router.post('/api/v1/game', function(req,res) {
+    console.log('post game');
+    executeQuery(game_insert,[req.body.game_title],res);
+})
 
 module.exports = router;

@@ -90,33 +90,24 @@ SET default_with_oids = false;
 
 --
 -- TOC entry 182 (class 1259 OID 16398)
--- Name: arranger; Type: TABLE; Schema: arrangements; Owner: db_user
+-- Name: user; Type: TABLE; Schema: arrangements; Owner: db_user
 --
 
-CREATE TABLE arranger (
-    arranger_id integer NOT NULL,
+CREATE TABLE gso_user (
+    user_id integer NOT NULL,
     name character varying(30) NOT NULL,
     "e-mail" character varying(50) NOT NULL
 );
 
 
-ALTER TABLE arranger OWNER TO db_user;
-
---
--- TOC entry 2160 (class 0 OID 0)
--- Dependencies: 182
--- Name: TABLE arranger; Type: COMMENT; Schema: arrangements; Owner: db_user
---
-
-COMMENT ON TABLE arranger IS 'An arranger of a piece.';
-
+ALTER TABLE gso_user OWNER TO db_user;
 
 --
 -- TOC entry 181 (class 1259 OID 16396)
--- Name: arranger_arranger_id_seq; Type: SEQUENCE; Schema: arrangements; Owner: db_user
+-- Name: gso_user_user_id_seq; Type: SEQUENCE; Schema: arrangements; Owner: db_user
 --
 
-CREATE SEQUENCE arranger_arranger_id_seq
+CREATE SEQUENCE gso_user_user_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -124,15 +115,15 @@ CREATE SEQUENCE arranger_arranger_id_seq
     CACHE 1;
 
 
-ALTER TABLE arranger_arranger_id_seq OWNER TO db_user;
+ALTER TABLE gso_user_user_id_seq OWNER TO db_user;
 
 --
 -- TOC entry 2161 (class 0 OID 0)
 -- Dependencies: 181
--- Name: arranger_arranger_id_seq; Type: SEQUENCE OWNED BY; Schema: arrangements; Owner: db_user
+-- Name: gso_user_user_id_seq; Type: SEQUENCE OWNED BY; Schema: arrangements; Owner: db_user
 --
 
-ALTER SEQUENCE arranger_arranger_id_seq OWNED BY arranger.arranger_id;
+ALTER SEQUENCE gso_user_user_id_seq OWNED BY gso_user.user_id;
 
 
 --
@@ -179,7 +170,8 @@ ALTER SEQUENCE instrument_instrument_id_seq OWNED BY instrument.instrument_id;
 
 CREATE TABLE review (
     song_id integer NOT NULL,
-    reviewer_id integer NOT NULL,
+    user_id integer NOT NULL,
+    instrument_id integer NOT NULL,
     overall_rating double precision NOT NULL,
     part_rating double precision NOT NULL,
     part_difficulty double precision NOT NULL,
@@ -220,53 +212,15 @@ COMMENT ON CONSTRAINT review_part_rating_ceck ON review IS 'All values must be i
 
 
 --
--- TOC entry 186 (class 1259 OID 16434)
--- Name: reviewer; Type: TABLE; Schema: arrangements; Owner: db_user
---
-
-CREATE TABLE reviewer (
-    reviewer_id integer NOT NULL,
-    name character varying(20) NOT NULL,
-    instrument_id integer NOT NULL,
-    "e-mail" character varying(50)
-);
-
-
-ALTER TABLE reviewer OWNER TO db_user;
-
---
--- TOC entry 185 (class 1259 OID 16432)
--- Name: reviewer_reviewer_id_seq; Type: SEQUENCE; Schema: arrangements; Owner: db_user
---
-
-CREATE SEQUENCE reviewer_reviewer_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE reviewer_reviewer_id_seq OWNER TO db_user;
-
---
--- TOC entry 2166 (class 0 OID 0)
--- Dependencies: 185
--- Name: reviewer_reviewer_id_seq; Type: SEQUENCE OWNED BY; Schema: arrangements; Owner: db_user
---
-
-ALTER SEQUENCE reviewer_reviewer_id_seq OWNED BY reviewer.reviewer_id;
-
-
---
 -- TOC entry 184 (class 1259 OID 16418)
 -- Name: song; Type: TABLE; Schema: arrangements; Owner: db_user
 --
 
 CREATE TABLE song (
     song_id integer NOT NULL,
-    arranger_id integer NOT NULL,
+    user_id integer NOT NULL,
     title character varying NOT NULL,
+    game_title character varying NOT NULL,
     date date NOT NULL,
     avg_rating double precision,
     avg_difficulty double precision
@@ -319,10 +273,10 @@ ALTER SEQUENCE song_song_id_seq OWNED BY song.song_id;
 
 --
 -- TOC entry 2011 (class 2604 OID 16401)
--- Name: arranger_id; Type: DEFAULT; Schema: arrangements; Owner: db_user
+-- Name: user_id; Type: DEFAULT; Schema: arrangements; Owner: db_user
 --
 
-ALTER TABLE ONLY arranger ALTER COLUMN arranger_id SET DEFAULT nextval('arranger_arranger_id_seq'::regclass);
+ALTER TABLE ONLY gso_user ALTER COLUMN user_id SET DEFAULT nextval('gso_user_user_id_seq'::regclass);
 
 
 --
@@ -331,14 +285,6 @@ ALTER TABLE ONLY arranger ALTER COLUMN arranger_id SET DEFAULT nextval('arranger
 --
 
 ALTER TABLE ONLY instrument ALTER COLUMN instrument_id SET DEFAULT nextval('instrument_instrument_id_seq'::regclass);
-
-
---
--- TOC entry 2013 (class 2604 OID 16437)
--- Name: reviewer_id; Type: DEFAULT; Schema: arrangements; Owner: db_user
---
-
-ALTER TABLE ONLY reviewer ALTER COLUMN reviewer_id SET DEFAULT nextval('reviewer_reviewer_id_seq'::regclass);
 
 
 --
@@ -351,11 +297,11 @@ ALTER TABLE ONLY song ALTER COLUMN song_id SET DEFAULT nextval('song_song_id_seq
 
 --
 -- TOC entry 2019 (class 2606 OID 16529)
--- Name: arranger_id_unique; Type: CONSTRAINT; Schema: arrangements; Owner: db_user
+-- Name: user_id_unique; Type: CONSTRAINT; Schema: arrangements; Owner: db_user
 --
 
-ALTER TABLE ONLY arranger
-    ADD CONSTRAINT arranger_id_unique UNIQUE (arranger_id);
+ALTER TABLE ONLY gso_user
+    ADD CONSTRAINT user_id_unique UNIQUE (user_id);
 
 
 --
@@ -363,8 +309,8 @@ ALTER TABLE ONLY arranger
 -- Name: arranger_pk; Type: CONSTRAINT; Schema: arrangements; Owner: db_user
 --
 
-ALTER TABLE ONLY arranger
-    ADD CONSTRAINT arranger_pk PRIMARY KEY (name, "e-mail");
+ALTER TABLE ONLY gso_user
+    ADD CONSTRAINT gso_user_pk PRIMARY KEY (user_id, name, "e-mail");
 
 
 --
@@ -391,25 +337,7 @@ ALTER TABLE ONLY instrument
 --
 
 ALTER TABLE ONLY review
-    ADD CONSTRAINT review_pk PRIMARY KEY (song_id, reviewer_id);
-
-
---
--- TOC entry 2028 (class 2606 OID 16502)
--- Name: reviewer_pk; Type: CONSTRAINT; Schema: arrangements; Owner: db_user
---
-
-ALTER TABLE ONLY reviewer
-    ADD CONSTRAINT reviewer_pk PRIMARY KEY (reviewer_id, name, instrument_id);
-
-
---
--- TOC entry 2030 (class 2606 OID 16504)
--- Name: reviewer_reviewer_id_unique; Type: CONSTRAINT; Schema: arrangements; Owner: db_user
---
-
-ALTER TABLE ONLY reviewer
-    ADD CONSTRAINT reviewer_reviewer_id_unique UNIQUE (reviewer_id);
+    ADD CONSTRAINT review_pk PRIMARY KEY (song_id, user_id, instrument_id);
 
 
 --
@@ -418,7 +346,7 @@ ALTER TABLE ONLY reviewer
 --
 
 ALTER TABLE ONLY song
-    ADD CONSTRAINT song_pk PRIMARY KEY (arranger_id, title, date);
+    ADD CONSTRAINT song_pk PRIMARY KEY (user_id, title, game_title, date);
 
 
 --
@@ -432,18 +360,18 @@ ALTER TABLE ONLY song
 
 --
 -- TOC entry 2035 (class 1259 OID 16510)
--- Name: fki_review_reviewer_fk; Type: INDEX; Schema: arrangements; Owner: db_user
+-- Name: fki_review_gso_user_fk; Type: INDEX; Schema: arrangements; Owner: db_user
 --
 
-CREATE INDEX fki_review_reviewer_fk ON review USING btree (reviewer_id);
+CREATE INDEX fki_review_gso_user_fk ON review USING btree (user_id);
 
 
 --
 -- TOC entry 2026 (class 1259 OID 16461)
--- Name: fki_reviewer_instrument_fk; Type: INDEX; Schema: arrangements; Owner: db_user
+-- Name: fki_review_instrument_fk; Type: INDEX; Schema: arrangements; Owner: db_user
 --
 
-CREATE INDEX fki_reviewer_instrument_fk ON reviewer USING btree (instrument_id);
+CREATE INDEX fki_review_instrument_fk ON review USING btree (instrument_id);
 
 
 --
@@ -456,11 +384,11 @@ CREATE TRIGGER review_rating_trigger AFTER INSERT OR DELETE OR UPDATE ON review 
 
 --
 -- TOC entry 2040 (class 2606 OID 16505)
--- Name: review_reviewer_fk; Type: FK CONSTRAINT; Schema: arrangements; Owner: db_user
+-- Name: review_gso_user_fk; Type: FK CONSTRAINT; Schema: arrangements; Owner: db_user
 --
 
 ALTER TABLE ONLY review
-    ADD CONSTRAINT review_reviewer_fk FOREIGN KEY (reviewer_id) REFERENCES reviewer(reviewer_id);
+    ADD CONSTRAINT review_gso_user_fk FOREIGN KEY (user_id) REFERENCES gso_user(user_id);
 
 
 --
@@ -470,15 +398,6 @@ ALTER TABLE ONLY review
 
 ALTER TABLE ONLY review
     ADD CONSTRAINT review_song_fk FOREIGN KEY (song_id) REFERENCES song(song_id);
-
-
---
--- TOC entry 2038 (class 2606 OID 16456)
--- Name: reviewer_instrument_fk; Type: FK CONSTRAINT; Schema: arrangements; Owner: db_user
---
-
-ALTER TABLE ONLY reviewer
-    ADD CONSTRAINT reviewer_instrument_fk FOREIGN KEY (instrument_id) REFERENCES instrument(instrument_id);
 
 
 -- Completed on 2016-01-24 19:42:09

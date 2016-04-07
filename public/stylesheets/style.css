@@ -13,7 +13,7 @@ ul {
 }
 
 .container {
-  max-width: 400px;
+  max-width: 100%;
   background-color: #eeeeee;
   border: 1px solid black;
 }
