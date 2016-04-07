@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+
+<html ng-app="nodeCrud">
+<head>
+    <title>GSO Arrangements App - with Node + Express + Angular + PostgreSQL</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- styles -->
+    <link href="http://netdna.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" rel="stylesheet" media="screen">
+    <link href="stylesheets/style.css" rel="stylesheet" media="screen">
+</head>
+<nav class="navbar navbar-inverse">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="./">GSO Arrangements</a>
+    </div>
+    <ul class="nav navbar-nav">
+      <li><a href="./">Home</a></li>
+      <li><a href="./user">User</a></li>
+      <li class="active"><a href="#">Song</a></li>
+      <li><a href="./arrangements">Arrangements</a></li> 
+    </ul>
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="#"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
+      <li><a href="#"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+    </ul>
+  </div>
+</nav>
+<body ng-controller="songController">
+    <div class="container">
+        <div class="header">
+            <h1>GSO Songs</h1>
+            <hr>
+            <h1 class="lead">Node + Express + Angular + PostgreSQL</h1>
+        </div>
+
+        <div class="song-form ng-cloak">
+            <form>
+                <div class="form-group">
+                    <input type="text" class="form-control input-lg" placeholder="Add an arrangement..." ng-model="formData.title">
+                    <label for="userSelect"> Select user: </label>
+                    <select class="form-control input-lg ng-cloak" name="userSelect" id="userSelect" ng-model="formData.user_id">
+                        <option ng-repeat="user in userData" value="{{user.user_id}}">{{user.name}}</option>
+                    </select>
+                    <input type="text" class="form-control input-lg" placeholder="Add a game..." ng-model="formData.game_title">
+                    <input type="text" class="form-control input-lg" placeholder="Add a date..." ng-model="formData.date">
+                </div>
+                <button type="submit" class="btn btn-primary btn-lg" ng-click="createSong()">Add Song</button>
+            </form>
+        </div>
+        
+        <br>
+        
+        <div class="song-list ng-cloak">
+            <ul ng-repeat="song in songData">
+                <li><h3>&nbsp;{{ song.title }}</h3></li>
+            </ul>
+        </div>
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.2.min.js" type="text/javascript"></script>
+   <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootswatch/3.3.0/slate/bootstrap.min.css"/>
+    <link rel="stylesheet" href="stylesheets/trNgGrid.min.css" />
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.1/angular.js"></script>
+    <script src="javascripts/trNgGrid.min.js"></script>
+    <script src="javascripts/app.js"></script>
+</body>
+</html>
