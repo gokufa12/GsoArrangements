@@ -12,11 +12,14 @@
     "db_init": "npm run db_init:replace && npm run db_init:user && npm run db_init:db && npm_run db_init:instruments"
   },
   "dependencies": {
+    "bluebird": "^3.3.4",
     "body-parser": "~1.13.2",
     "cookie-parser": "~1.3.5",
     "debug": "~2.2.0",
     "express": "~4.13.1",
+    "express-jwt": "^3.3.0",
     "jade": "~1.11.0",
+    "jsonwebtoken": "^5.7.0",
     "morgan": "~1.6.1",
     "path": "^0.12.7",
     "pg-promise": "^3.0.4",
