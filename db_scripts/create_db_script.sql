@@ -270,6 +270,28 @@ ALTER TABLE song_song_id_seq OWNER TO db_user;
 
 ALTER SEQUENCE song_song_id_seq OWNED BY song.song_id;
 
+-- Table: user_info
+
+-- DROP TABLE user_info;
+
+CREATE TABLE user_info
+(
+  gso_user_id integer NOT NULL,
+  email character varying(50) NOT NULL,
+  password character(64) NOT NULL,
+  salt character varying(64) NOT NULL,
+  CONSTRAINT user_info_pk PRIMARY KEY (email, password),
+  CONSTRAINT user_info_gso_user_fk FOREIGN KEY (gso_user_id)
+      REFERENCES gso_user (user_id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION,
+  CONSTRAINT user_info_salt_unique UNIQUE (salt)
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE user_info
+  OWNER TO db_user;
+  
 
 --
 -- TOC entry 2011 (class 2604 OID 16401)

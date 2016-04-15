@@ -55,6 +55,38 @@ angular.module('nodeCrud', ["trNgGrid"])
             });
     };
 })
+.controller('loginController', function($scope, $http) {
+    
+    $scope.formData = {};
+
+    // Sign In
+    $scope.signIn = function() {
+        $http.post('/api/v1/authenticate', $scope.formData)
+            .success(function(data) {
+                $scope.formData = {};
+                console.log(data);
+            })
+            .error(function(error) {
+                console.log('Error: ' + error);
+            });    
+    };
+})
+.controller('signupController', function($scope, $http) {
+    
+    $scope.formData = {};
+
+    // Sign In
+    $scope.signUp = function() {
+        $http.post('/api/v1/signup', $scope.formData)
+            .success(function(data) {
+                $scope.formData = {};
+                console.log(data);
+            })
+            .error(function(error) {
+                console.log('Error: ' + error);
+            });    
+    };
+})
 .controller('userProfileController', function($scope, $http) {
     
     $scope.userData = {};

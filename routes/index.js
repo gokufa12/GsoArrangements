@@ -1,49 +1,16 @@
 var express = require('express');
 var router = express.Router();
-var pgp = require('pg-promise')();
+var promise = require('bluebird');
 var path = require('path');
-/* Config details for the database */
-var config = {
-    host: 'localhost',
-    port: 5432,
-    database: 'postgres',	//Plan to change this in the future
-    user: 'db_user',
-    password: 'password'
-};
-var db = pgp(config);
-
-/* SQL */
-var user_insert = "INSERT INTO gso_user (name, \"e-mail\") VALUES ($1,$2)";
-var user_select_all = "SELECT * FROM gso_user ORDER BY name ASC";
-var user_select = "SELECT user_id FROM gso_user WHERE name = $1";
-var user_select_one = "SELECT * FROM gso_user WHERE user_id=$1";
-var user_update = "UPDATE gso_user SET name=$1, \"e-mail\"=$2 WHERE user_id=$3 RETURNING *";
-//TODO: Delete will have to cascade to satisfy foreign key constraints
-var user_delete = "DELETE FROM gso_user WHERE user_id=$1";
-
-var song_insert = "INSERT INTO song (user_id, title, game_title, date) VALUES ($1,$2,$3,$4)";
-var song_select_all = "SELECT song.*, gso_user.name FROM song NATURAL JOIN gso_user";
-var song_by_user = "SELECT song.*, gso_user.name FROM song NATURAL JOIN gso_user WHERE user_id=$1";
-var song_update = "UPDATE song SET title=$1, date=$2 WHERE song_id=$3";
-//TODO: Delete will have to cascade to satisfy foreign key constraints
-var song_delete = "DELETE FROM song WHERE song_id=$1";
-
-var review_insert = "INSERT INTO review (song_id, reviewer_id, overall_rating, part_rating, part_difficulty, comments) VALUES($1,$2,$3,$4,$5,$6)";
-var review_select_all = "SELECT * FROM review";
-var review_update = "UPDATE review SET overall_rating=$1, part_rating=$2, part_difficulty=$3, comments=$4 WHERE song_id=$5 AND reviewer_id=$6";
-var review_delete = "DELETE FROM review WHERE song_id=$1 AND reviewer_id=$2";
-
-var song_title_user_select = "SELECT song_id FROM song NATURAL JOIN gso_user WHERE title = $1 AND name = $2";
-var reviewer_select = "SELECT name FROM reviewer";
-var instrument_view = "SELECT instrument_id, name as instrument FROM instruments "
-            + "NATURAL JOIN $1 ON instrument_id";
-var review_select = "SELECT instrument.name as instrument, overall_rating, part_rating, part_difficulty, comments "
-            + "FROM review LEFT JOIN instrument ON review.instrument_id = instrument.instrument_id "
-            + "WHERE song_id = $1";
-var instrument_select_all = "SELECT * FROM instrument";
-var orchestra_select_all = "SELECT * FROM orchestra";
-
-
+var jwt = require('jsonwebtoken');
+const crypto = require('crypto');
+const hash = crypto.createHash('sha256');
+function genHash(data) {
+    return crypto.createHash('sha256').update(data).digest('hex');
+}
+const secrets = 'ThisIsMySecretPassword';
+var db = require('../private/database.js');
+ 
 /* GET home page. */
 router.get('/', function(req, res, next) {
   res.sendFile(path.join(__dirname, '../views', 'index.html'));
@@ -61,44 +28,107 @@ router.get('/song', function(req, res, next) {
   res.sendFile(path.join(__dirname, '../views', 'song.html'));
 });
 
-/** Generic post
- * @param sqlArray  pair of sql statements. First returns no values, second is SELECT
- * @param valArray  array containing values for placement in the INSERT statement
- * @param res       http response
- */
-function executePair(sqlArray, valArray, res) {
-    console.log(sqlArray[0] + valArray);
-    db.none(sqlArray[0],valArray)
-    .then(function() {
-        db.query(sqlArray[1])
-        .then(function(data) {
-            console.log(data);
-            res.status(200).json(data);
-        })
-        .catch(function(err) {
-            console.log('Error in post: ' + err);
-            return res.status(500).json({success: false, reason: err});
-        })
+router.get('/login', function(req, res, next) {
+  res.sendFile(path.join(__dirname, '../views', 'login.html'));
+});
+
+router.get('/signup', function(req, res, next) {
+  res.sendFile(path.join(__dirname, '../views', 'signup.html'));
+});
+
+function authenticate(email, password, create) {
+    console.log(email + ' ' + password);
+
+    return db.executeQuery('SELECT salt FROM user_info WHERE email = $1', [email],null)
+    .then(function(salt) {
+        //if salt existed
+        if (salt && salt[0].salt != "") {
+            var hash = genHash(salt[0].salt + password);
+            console.log(salt[0].salt+password);
+            console.log(hash);
+            //Returns a promise with either the user data or null
+            return db.executeQuery('SELECT gso_user_id FROM user_info WHERE email=$1 AND password=$2',
+                          [email, hash],null)
+        } else {
+          console.log("returning promise with null...");
+            //return a promise with null data
+            return new Promise(function(resolve){
+              resolve(null);
+            });
+        }
     });
 }
 
-/** Generic singular query with some return value
- * @param sql       sql statement
- * @param valArray  array containing values for placement in the select statement
- * @param res       http response
- */
-function executeQuery(sql, valArray, res) {
-    db.query(sql,valArray)
-    .then(function(data) {
-        console.log(sql);
-        console.log(data);
-        res.status(200).json(data);
-    })
-    .catch(function(err) {
-        console.log(err);
-        return res.status(500).json({success: false, reason: err});
+//This will return the info we want to put into our JWT if you call .then
+function signup(email, password, create) {
+    return db.executeQuery('SELECT salt FROM user_info WHERE email = $1', [email],null)
+    .then(function(salt) {
+        //if salt existed
+        if (salt && salt != "") {
+            //return a promise with null data
+            return new Promise(function(resolve){
+              resolve(null);
+            });
+        } else {
+            //  Everything should be cool. Add stuff to gso_user first, then add user_info
+            return db.executeQuery(db.user_insert,create,null)
+            .then(function(result) {
+                console.log("created new user: " + result);
+                const buffer = crypto.randomBytes(32);
+                salt = buffer.toString('hex');
+                var hash = genHash(salt + password);
+                console.log(salt+password);
+                console.log(hash);
+                var values = [result[0].user_id, email, hash, salt];
+                console.log(values);
+                return db.executeQuery('INSERT INTO user_info (gso_user_id, email, password, salt) VALUES($1,$2,$3,$4) RETURNING gso_user_id, salt',values, null);
+            });
+        }
     });
 }
+
+function resolveJWT(data, res) {
+        //if data is there, generate jwt
+        if (data) {
+          //send their salt back mixed with our secret?
+          var myXSRF = genHash(data[1] + secrets);
+          var payload = {user_id: data[0].gso_user_id,
+                        xsrfToken: myXSRF};
+          var options = {expiresIn: "1d",
+                        issuer: 'http://gamersymphonyorch.org'};
+          var myToken = jwt.sign(payload, secrets, options);
+          //Set it in the cookie
+          res.cookie('access_token', myToken, {secure: false, httpOnly: false});
+          //res.append('Set-Cookie', 'foo=bar; Path=/; HttpOnly;');
+          //res.cookie('Warning', '199 Miscellaneous warning',{secure: false, httpOnly: false });
+          //Set cookie to avoid XSRF
+          res.cookie('XSRF-TOKEN', myXSRF, {secure: false, httpOnly: false });
+          res.status(200).json({ success: true, jwt: myToken});
+          console.log(res.headersSent);
+        } else {
+          //Something failed
+          res.status(401).json({ success: false, message: 'Authentication failed.'});
+        }
+        
+    }
+
+router.post('/api/v1/authenticate', function(req, res) {
+    console.log('authenticate: ' + req.body);
+    var vals = [req.body.name, req.body.email];
+    authenticate(req.body.email, req.body.password, vals)
+    .then(function(data) {
+      resolveJWT(data, res)
+    });
+});
+
+router.post('/api/v1/signup', function(req, res) {
+    console.log('signup: ' + req.body);
+    var vals = [req.body.name, req.body.email];
+    signup(req.body.email, req.body.password, vals)
+    .then(function(data) {
+      resolveJWT(data, res);
+    });
+});
 
 /* Arranger CRUD */
 
@@ -106,26 +136,26 @@ function executeQuery(sql, valArray, res) {
 router.post('/api/v1/user', function(req, res) {
     console.log('data: ' + req.body.name + ' ' + req.body.email);
     var vals = [req.body.name, req.body.email];
-    executePair([user_insert, user_select_all], vals, res);
+    db.executePair([db.user_insert, db.user_select_all], vals, res);
 });
 
 //User Get
 router.get('/api/v1/user', function(req, res) {
    console.log("doing get");
-   executeQuery(user_select_all,[],res);
+   db.executeQuery(db.user_select_all,[],res);
 });
 
 //User Get One
 router.get('/api/v1/user/:user_id', function(req, res) {
    console.log('get with Id: ' + req.params.user_id);
-   executeQuery(user_select_one,[req.params.user_id],res);
+   db.executeQuery(db.user_select_one,[req.params.user_id],res);
 });
 
 //User Update
 router.put('/api/v1/user', function(req, res) {
     var vals = [req.body.name, req.body.email, req.body.user_id]
     console.log("doing update");
-    executeQuery(user_update,vals,res);
+    db.executeQuery(db.user_update,vals,res);
 });
 
 //User delete
@@ -133,7 +163,7 @@ router.delete('/api/v1/user/:user_id', function(req, res) {
     console.log('Id: ' + req.params.user_id);
     var vals = [req.params.user_id];
     console.log("doing delete");
-    executePair([user_delete, user_select_all], vals, res);    
+    db.executePair([db.user_delete, db.user_select_all], vals, res);    
 });
 
 /* Song CRUD */
@@ -142,27 +172,27 @@ router.delete('/api/v1/user/:user_id', function(req, res) {
 router.post('/api/v1/song', function(req, res) {
     console.log('data: ' + req.body.title + ' ' + req.body.date);
     var vals = [req.body.user_id, req.body.title, req.body.game_title, req.body.date];
-    executePair([song_insert, song_select_all], vals, res);
+    db.executePair([db.song_insert, db.song_select_all], vals, res);
 });
 
 //Song Get
 router.get('/api/v1/song', function(req, res) {
    console.log("doing get");
-   executeQuery(song_select_all,[],res);
+   db.executeQuery(db.song_select_all,[],res);
 });
 
 //Song Get
 router.get('/api/v1/user/:user_id/song', function(req, res) {
    console.log('get with user_id: ' + req.params.user_id);
-   console.log(song_by_user);
-   executeQuery(song_by_user,[req.params.user_id],res);
+   console.log(db.song_by_user);
+   db.executeQuery(db.song_by_user,[req.params.user_id],res);
 });
 
 //Song Update
 router.put('/api/v1/song', function(req, res) {
     var vals = [req.body.title, req.body.date, req.body.song_id]
     console.log("doing update");
-    executeQuery(song_update,vals,res);
+    db.executeQuery(db.song_update,vals,res);
 });
 
 //Song delete
@@ -170,7 +200,7 @@ router.delete('/api/v1/song/:song_id', function(req, res) {
     console.log('Id: ' + req.params.song_id);
     var vals = [req.params.song_id];
     console.log("doing delete");
-    executePair([song_delete, song_select_all], vals, res);    
+    db.executePair([db.song_delete, db.song_select_all], vals, res);    
 });
 
 /* Review CRUD */
@@ -179,26 +209,26 @@ router.delete('/api/v1/song/:song_id', function(req, res) {
 router.post('/api/v1/review', function(req, res) {
     console.log('data: ' + req.body.song_id + ' ' + req.body.reviewer_id);
     var vals = [req.body.song_id, req.body.reviewer_id, req.body.overall_rating, req.body.part_rating, req.body.part_difficulty, req.body.comments];
-    executePair([review_insert, review_select_all], vals, res);
+    db.executePair([db.review_insert, db.review_select_all], vals, res);
 });
 
 //Review Get
 router.get('/api/v1/review', function(req, res) {
    console.log("doing get");
-   executeQuery(review_select_all,[],res);
+   db.executeQuery(db.review_select_all,[],res);
 });
 
 //Review Get for Song
 router.get('/api/v1/song/:song_id/review', function(req, res) {
    console.log("doing get for song_id: " + req.params.song_id);
-   executeQuery(review_select,[req.params.song_id],res);
+   db.executeQuery(db.review_select,[req.params.song_id],res);
 });
 
 //Review Update
 router.put('/api/v1/review', function(req, res) {
     var vals = [req.body.overall_rating, req.body.part_rating, req.body.part_difficulty, req.body.comments, req.body.song_id, req.body.reviewer_id];
     console.log("doing update");
-    executeQuery(review_update,vals,res);
+    db.executeQuery(db.review_update,vals,res);
 });
 
 //Review delete
@@ -206,25 +236,25 @@ router.delete('/api/v1/review/:review_id', function(req, res) {
     console.log('Id: ' + req.params.review_id);
     var vals = [req.params.review_id];
     console.log("doing delete");
-    executePair([review_delete, review_select_all], vals, res);    
+    db.executePair([db.review_delete, db.review_select_all], vals, res);    
 });
 
 /* Instrument CRUD */
 router.get('/api/v1/instrument', function(req, res) {
    console.log("doing get");
-   executeQuery(instrument_select_all,[],res);
+   db.executeQuery(db.instrument_select_all,[],res);
 });
 
 /* Orchestra CRUD */
 router.get('/api/v1/orchestra', function(req,res) {
    console.log("get orchestra");
-   executeQuery(orchestra_select_all,[],res);
+   db.executeQuery(db.orchestra_select_all,[],res);
 });
 
 /* Game CRUD */
 router.post('/api/v1/game', function(req,res) {
     console.log('post game');
-    executeQuery(game_insert,[req.body.game_title],res);
+    db.executeQuery(db.game_insert,[req.body.game_title],res);
 })
 
 module.exports = router;
