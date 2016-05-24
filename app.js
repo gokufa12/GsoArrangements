@@ -38,7 +38,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/users/*', jwtCheck);
 app.use('/users', jwtCheck);
-router.use('/api/v1/*/id', jwtCheck);
+app.use('/api/v1/*/id', jwtCheck);
 app.use('/', routes);
 app.use('/users', users);
 
