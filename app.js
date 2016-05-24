@@ -35,16 +35,13 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+
+app.use('/users/*', jwtCheck);
+app.use('/users', jwtCheck);
+router.use('/api/v1/*/id', jwtCheck);
 app.use('/', routes);
 app.use('/users', users);
-//This is an example protected page
-app.get('/protected',
-  jwtCheck,
-  function(req, res) {
-    //console.log("auth: " + req.cookies['access_token']);
-    if (!req.user.user_id){ console.log("user:"); console.log(req.user); return res.send(401); }
-    res.send(200);
-  });
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -59,6 +56,10 @@ app.use(function(req, res, next) {
 // will print stacktrace
 if (app.get('env') === 'development') {
   app.use(function(err, req, res, next) {
+    //Auth error, go to login
+    if (err.status == 401){
+        res.redirect('/login');
+    }
     res.status(err.status || 500);
     res.render('error', {
       message: err.message,
@@ -70,6 +71,10 @@ if (app.get('env') === 'development') {
 // production error handler
 // no stacktraces leaked to user
 app.use(function(err, req, res, next) {
+  //Auth error, go to login
+  if (err.status == 401){
+        res.redirect('/login');
+    }
   res.status(err.status || 500);
   res.render('error', {
     message: err.message,

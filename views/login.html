@@ -15,31 +15,44 @@
     </div>
     <ul class="nav navbar-nav">
       <li><a href="./">Home</a></li>
-      <li class="active"><a href="">Login</a></li>
-      <li><a href="">User</a></li>
-      <li><a href="./song">Song</a></li>
-      <li><a href="./arrangements">Arrangements</a></li> 
+      <!--<li class="active"><a href="">Login</a></li>-->
+      <!--<li><a href="">User</a></li>-->
+      <!--<li><a href="./song">Song</a></li>-->
+      <!--<li><a href="./arrangements">Arrangements</a></li> -->
     </ul>
     <ul class="nav navbar-nav navbar-right">
       <li><a href="#"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
-      <li><a href="#"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+      <li class="active"><a href="#"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
     </ul>
   </div>
 </nav>
 <body ng-controller="loginController">
-    <div class="container">
-        <div class="header">
-            <h1>GSO Users</h1>
+    <div class="container-fluid jumbotron">
+        <div>
+            <h1 class="header">GSO Login</h1>
             <hr>
-            <h1 class="lead">Node + Express + Angular + PostgreSQL</h1>
+            <h2 class="header">Welcome to the Beta</h2>
         </div>
-        <div class="user-form ng-cloak">
-            <form>
-                <div class="form-group">
-                    <input type="text" class="form-control input-lg" placeholder="Add an email..." ng-model="formData.email">
-                    <input type="password" class="form-control input-lg" placeholder="Password..." ng-model="formData.password">
-                </div>
-                <button type="submit" class="btn btn-primary btn-lg" ng-click="signIn()">Sign In</button>
+        <div class="container-fluid user-form ng-cloak">
+            <form class="form-horizontal">
+                <fieldset>
+                  <legend>Login</legend>
+                  <div class="form-group">
+                    <label class="col-lg-2 control-label" for="inputTitle">Email</label>
+                    <div class="col-lg-10">
+                      <input class="form-control" id="intputTitle" type="text" placeholder="Enter email..." ng-model="formData.email">
+                    </div>
+                    <label class="col-lg-2 control-label" for="inputPass">Password</label>
+                    <div class="col-lg-10">
+                      <input class="form-control" id="intputPass" type="password" placeholder="Enter password..." ng-model="formData.password">
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <div class="col-lg-10 col-lg-offset-2">
+                      <button class="btn btn-primary" type="submit" ng-click="signIn()">Sign In</button>
+                    </div>
+                  </div>
+                </fieldset>
             </form>
             <br>
         </div>

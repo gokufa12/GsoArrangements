@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 var promise = require('bluebird');
 var path = require('path');
-var jwt = require('jsonwebtoken');
+var jwtoken = require('jsonwebtoken');
 const crypto = require('crypto');
 const hash = crypto.createHash('sha256');
 function genHash(data) {
@@ -10,7 +10,7 @@ function genHash(data) {
 }
 const secrets = 'ThisIsMySecretPassword';
 var db = require('../private/database.js');
- 
+
 /* GET home page. */
 router.get('/', function(req, res, next) {
   res.sendFile(path.join(__dirname, '../views', 'index.html'));
@@ -42,10 +42,8 @@ function authenticate(email, password, create) {
     return db.executeQuery('SELECT salt FROM user_info WHERE email = $1', [email],null)
     .then(function(salt) {
         //if salt existed
-        if (salt && salt[0].salt != "") {
+        if (salt && (salt.length > 0) && (salt[0].salt != "")) {
             var hash = genHash(salt[0].salt + password);
-            console.log(salt[0].salt+password);
-            console.log(hash);
             //Returns a promise with either the user data or null
             return db.executeQuery('SELECT gso_user_id FROM user_info WHERE email=$1 AND password=$2',
                           [email, hash],null)
@@ -96,7 +94,7 @@ function resolveJWT(data, res) {
                         xsrfToken: myXSRF};
           var options = {expiresIn: "1d",
                         issuer: 'http://gamersymphonyorch.org'};
-          var myToken = jwt.sign(payload, secrets, options);
+          var myToken = jwtoken.sign(payload, secrets, options);
           //Set it in the cookie
           res.cookie('access_token', myToken, {secure: false, httpOnly: false});
           //res.append('Set-Cookie', 'foo=bar; Path=/; HttpOnly;');
@@ -145,13 +143,23 @@ router.get('/api/v1/user', function(req, res) {
    db.executeQuery(db.user_select_all,[],res);
 });
 
+//User Get
+router.get('/api/v1/user/id', function(req, res) {
+  console.log(req.user);
+   var data = [req.user.user_id];
+   console.log(data);
+   db.executeQuery(db.user_select_one,data,res);
+});
+
 //User Get One
+//TODO: remove this, using req.user instead
 router.get('/api/v1/user/:user_id', function(req, res) {
    console.log('get with Id: ' + req.params.user_id);
    db.executeQuery(db.user_select_one,[req.params.user_id],res);
 });
 
 //User Update
+//TODO: remove this, using req.user instead
 router.put('/api/v1/user', function(req, res) {
     var vals = [req.body.name, req.body.email, req.body.user_id]
     console.log("doing update");
@@ -175,6 +183,12 @@ router.post('/api/v1/song', function(req, res) {
     db.executePair([db.song_insert, db.song_select_all], vals, res);
 });
 
+router.post('/api/v1/song/id', function(req, res) {
+    console.log('data: ' + req.body.title + ' ' + req.body.date);
+    var vals = [req.user.user_id, req.body.title, req.body.game_title, req.body.date];
+    db.executeQuery(db.song_insert, vals, res);
+});
+
 //Song Get
 router.get('/api/v1/song', function(req, res) {
    console.log("doing get");
@@ -182,10 +196,18 @@ router.get('/api/v1/song', function(req, res) {
 });
 
 //Song Get
+//Used for users other than self
 router.get('/api/v1/user/:user_id/song', function(req, res) {
    console.log('get with user_id: ' + req.params.user_id);
    console.log(db.song_by_user);
    db.executeQuery(db.song_by_user,[req.params.user_id],res);
+});
+
+//Song Get
+router.get('/api/v1/user/song/id', function(req, res) {
+   console.log(db.song_by_user);
+   console.log(req.user.user_id);
+   db.executeQuery(db.song_by_user,[req.user.user_id],res);
 });
 
 //Song Update

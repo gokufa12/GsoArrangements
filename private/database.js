@@ -25,7 +25,7 @@ user_update : "UPDATE gso_user SET name=$1, \"e-mail\"=$2 WHERE user_id=$3 RETUR
 //TODO: Delete will have to cascade to satisfy foreign key constraints
 user_delete : "DELETE FROM gso_user WHERE user_id=$1",
 
-song_insert : "INSERT INTO song (user_id, title, game_title, date) VALUES ($1,$2,$3,$4)",
+song_insert : "INSERT INTO song (user_id, title, game_title, date) VALUES ($1,$2,$3,$4) RETURNING *",
 song_select_all : "SELECT song.*, gso_user.name FROM song NATURAL JOIN gso_user",
 song_by_user : "SELECT song.*, gso_user.name FROM song NATURAL JOIN gso_user WHERE user_id=$1",
 song_update : "UPDATE song SET title=$1, date=$2 WHERE song_id=$3",
