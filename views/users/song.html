@@ -23,6 +23,7 @@
     <ul class="nav navbar-nav">
       <li><a href="./" >Dashboard</a></li>
       <li class="active"><a href="#">Add Song</a></li>
+      <li><a href="./addsong_csv">Add Song CSV</a></li>
       <li><a href="./arrangements">Browse Songs</a></li>
     </ul>
      <ul class="nav navbar-nav navbar-right">
@@ -48,7 +49,7 @@
                     </div>
                     <label class="col-lg-2 control-label" for="inputTitle">Arrangement Date</label>
                     <div class="col-lg-10">
-                      <input class="form-control" id="intputTitle" type="date" ng-model="formData.date">
+                      <input class="form-control" id="intputTitle" type="month" ng-model="formData.date">
                     </div>
                   </div>
                   <div class="form-group">
@@ -73,14 +74,6 @@
                         <th field-name="avg_difficulty" display-name="Difficulty"></th>-->
                     </tr>
                 </thead>
-                <!--<tbody>
-                    <tr>
-                        <td field-name="title"></td>
-                        <td field-name="date"></td>
-                        <td field-name="avg_rating"></td>
-                        <td field-name="avg_difficulty"></td>
-                    </tr>
-                </tbody>-->
             </table>
         </div>
 </div>

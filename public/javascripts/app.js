@@ -1,4 +1,4 @@
-angular.module('nodeCrud', ["trNgGrid"])
+angular.module('nodeCrud', ['trNgGrid', 'navbarapp'])
 .run(function () {
     TrNgGrid.defaultColumnOptions.displayAlign="center";
     TrNgGrid.defaultPagerMinifiedPageCountThreshold = 3;
@@ -269,12 +269,72 @@ angular.module('nodeCrud', ["trNgGrid"])
     };
 });
 
+ angular.module('fileupload', ['ngFileUpload'])
+    .controller('MyCtrl',['Upload','$window',function(Upload,$window){
+        var vm = this;
+        vm.submit = function(){ //function to call on form submit
+            if (vm.upload_form.file.$valid && vm.file) { //check if from is valid
+                vm.upload(vm.file); //call upload function
+            }
+        }
+        
+        vm.upload = function (file) {
+            console.log(file);
+            Upload.upload({
+                url: 'http://localhost:3000/api/v1/song/csv', //webAPI exposed to upload the file
+                data:{file:file} //pass file as data, should be user ng-model
+            }).then(function (resp) { //upload function returns a promise
+                if(resp.status === 200){ //validate success
+                    $window.alert('Success ' + resp.config.data.file.name + 'uploaded. Response: ');
+                } else {
+                    $window.alert('an error occured');
+                }
+            }, function (resp) { //catch error
+                console.log('Error status: ' + resp.status);
+                $window.alert('Error status: ' + resp.status);
+            }, function (evt) { 
+                console.log(evt);
+                var progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
+                console.log('progress: ' + progressPercentage + '% ' + evt.config.data.file.name);
+                vm.progress = 'progress: ' + progressPercentage + '% '; // capture upload progress
+            });
+        };
+    }]);
+
 //use the navbar template
-angular.module("navbarapp", ["controllers"])
-  .directive("bootstrapNavbar", function() {
+angular.module('navbarapp', [])
+  .directive("navbar", function() {
   return {
-    restrict: "E",         
+    restrict: "AE",         
     replace: true,         
-    transclude: true,      
-    templateUrl: "navbar.html"    
-  }});
+    transclude: false,      
+    template:   '<nav class="navbar navbar-inverse">' +
+                    '<div class="container-fluid">' +
+                        '<div class="navbar-header">' +
+                        '<a class="navbar-brand" href="./">GSO Arrangements</a>' +
+                        '</div>' +
+                        '<ul class="nav navbar-nav">' +
+                          '<li><a href="./" >Dashboard</a></li>' +
+                          '<li><a href="./addsong">Add Song</a></li>' +
+                          '<!--<li><a href="./addsong_csv">Add Song CSV</a></li>-->' +
+                          '<li><a href="./arrangements">Browse Songs</a></li>' +
+                        '</ul>' +
+                        '<ul class="nav navbar-nav navbar-right">' +
+                          '<li><a href="#"><span class="glyphicon glyphicon-envelope"></span> Inbox</a></li>' +
+                          '<li><a href="#"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>' +
+                        '</ul>' +
+                    '</div>' +
+                '</nav>',
+    controller: 'navbarCtrl'
+  }})
+  .controller('navbarCtrl', function ($scope, $location) {
+    $scope.isActive = function(path){
+        var currentPath = $location.path().split('/')[1];
+        if (currentPath.indexOf('?') !== -1) {
+            currentPath = currentPath.split('?')[0];
+        }
+        return currentPath === path.split('/')[1];
+    }
+  });
+  
+  

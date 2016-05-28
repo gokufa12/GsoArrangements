@@ -2,7 +2,10 @@ var express = require('express');
 var router = express.Router();
 var promise = require('bluebird');
 var path = require('path');
+var multiparty = require('multiparty');
+var csv = require('csv-parse');
 var jwtoken = require('jsonwebtoken');
+
 const crypto = require('crypto');
 const hash = crypto.createHash('sha256');
 function genHash(data) {
@@ -85,27 +88,30 @@ function signup(email, password, create) {
     });
 }
 
-function resolveJWT(data, res) {
+function resolveJWT(data, res, date) {
         //if data is there, generate jwt
         if (data) {
-          //send their salt back mixed with our secret?
-          var myXSRF = genHash(data[1] + secrets);
-          var payload = {user_id: data[0].gso_user_id,
-                        xsrfToken: myXSRF};
-          var options = {expiresIn: "1d",
-                        issuer: 'http://gamersymphonyorch.org'};
-          var myToken = jwtoken.sign(payload, secrets, options);
-          //Set it in the cookie
-          res.cookie('access_token', myToken, {secure: false, httpOnly: false});
-          //res.append('Set-Cookie', 'foo=bar; Path=/; HttpOnly;');
-          //res.cookie('Warning', '199 Miscellaneous warning',{secure: false, httpOnly: false });
-          //Set cookie to avoid XSRF
-          res.cookie('XSRF-TOKEN', myXSRF, {secure: false, httpOnly: false });
-          res.status(200).json({ success: true, jwt: myToken});
-          console.log(res.headersSent);
+            if (!date) {
+                date = '1d';
+            }
+            //send their salt back mixed with our secret?
+            var myXSRF = genHash(data[1] + secrets);
+            var payload = {user_id: data[0].gso_user_id,
+                          xsrfToken: myXSRF};
+            var options = {expiresIn: date,
+                          issuer: 'http://gamersymphonyorch.org'};
+            var myToken = jwtoken.sign(payload, secrets, options);
+            //Set it in the cookie
+            res.cookie('access_token', myToken, {secure: false, httpOnly: false});
+            //res.append('Set-Cookie', 'foo=bar; Path=/; HttpOnly;');
+            //res.cookie('Warning', '199 Miscellaneous warning',{secure: false, httpOnly: false });
+            //Set cookie to avoid XSRF
+            res.cookie('XSRF-TOKEN', myXSRF, {secure: false, httpOnly: false });
+            res.status(200).json({ success: true, jwt: myToken});
+            console.log(res.headersSent);
         } else {
-          //Something failed
-          res.status(401).json({ success: false, message: 'Authentication failed.'});
+            //Something failed
+            res.status(401).json({ success: false, message: 'Authentication failed.'});
         }
         
     }
@@ -115,8 +121,18 @@ router.post('/api/v1/authenticate', function(req, res) {
     var vals = [req.body.name, req.body.email];
     authenticate(req.body.email, req.body.password, vals)
     .then(function(data) {
-      resolveJWT(data, res)
+      resolveJWT(data, res);
     });
+});
+
+router.get('/api/v1/logout', function(req, res) {
+    console.log('authenticate: ' + req.cookies['access_token']);
+    res.status(200).send(req.cookies['access_token'])
+    //var vals = [req.body.name, req.body.email];
+    //authenticate(req.body.email, req.body.password, vals)
+    //.then(function(data) {
+    //  resolveJWT(data, res, '0');
+    //});
 });
 
 router.post('/api/v1/signup', function(req, res) {
@@ -187,6 +203,52 @@ router.post('/api/v1/song/id', function(req, res) {
     console.log('data: ' + req.body.title + ' ' + req.body.date);
     var vals = [req.user.user_id, req.body.title, req.body.game_title, req.body.date];
     db.executeQuery(db.song_insert, vals, res);
+});
+
+router.post('/api/v1/song/csv', function(req, res) {
+    var form = new multiparty.Form();
+    var count = 0;
+    var output = [];
+    var parser = csv();
+    parser.on('readable', function(){
+        while (record = parser.read()) {
+            output.push(record);
+        }
+    });
+    
+    parser.on('finish', function() {
+        //TODO: batch inserts
+        console.log(output);    
+    });
+
+    form.on('error', function(err) {
+        console.log('Error parsing form: ' + err.stack);
+    });
+    
+    // Parts are emitted when parsing the form
+    form.on('part', function(part) {
+      if (part.filename) {
+        // filename is defined when this is a file
+        count++;
+        console.log('got file named ' + part.name);
+        //Pipe contents to csv parser
+        part.pipe(parser);
+      }
+      
+      part.on('error', function(err) {
+        part.close();
+        res.status(500).send();
+      });
+    });
+    
+    // Close emitted after form parsed
+    form.on('close', function() {
+      console.log('Upload completed!');
+      res.setHeader('Content-Type', 'text/plain');
+      res.end('Received ' + count + ' files');
+    });
+    
+    form.parse(req);
 });
 
 //Song Get

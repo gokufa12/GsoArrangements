@@ -23,7 +23,7 @@ var jwtCheck = jwt({
     } else {
       return null;
     }
-  }
+  } //TODO: isRevoked
 });
 
 

@@ -11,6 +11,10 @@ router.get('/addsong', function(req, res, next) {
   res.sendFile(path.join(__dirname, '../views/users', 'song.html'));
 });
 
+router.get('/addsong_csv', function(req, res, next) {
+  res.sendFile(path.join(__dirname, '../views/users', 'upload_song_csv.html'));
+});
+
 router.get('/arrangements', function(req, res, next) {
   res.sendFile(path.join(__dirname, '../views/users', 'arrangements.html'));
 });
