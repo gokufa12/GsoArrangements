@@ -1,5 +1,4 @@
 #!/bin/env node
-//  OpenShift sample Node application
 var express = require('express');
 var fs      = require('fs');
 
@@ -93,17 +92,13 @@ var SampleApp = function() {
      *  Create the routing table entries + handlers for the application.
      */
     self.createRoutes = function() {
+        var routes = require('./routes/index');
+        var users = require('./routes/users');
+        
         self.routes = { };
 
-        self.routes['/asciimo'] = function(req, res) {
-            var link = "http://i.imgur.com/kmbjB.png";
-            res.send("<html><body><img src='" + link + "'></body></html>");
-        };
-
-        self.routes['/'] = function(req, res) {
-            res.setHeader('Content-Type', 'text/html');
-            res.send(self.cache_get('index.html') );
-        };
+        self.routes['routes'] = routes;
+        self.routes['users'] = users;        
     };
 
 
@@ -112,13 +107,89 @@ var SampleApp = function() {
      *  the handlers.
      */
     self.initializeServer = function() {
+        // view engine setup
+        var path = require('path');
+        var favicon = require('serve-favicon');
+        var logger = require('morgan');
+        var cookieParser = require('cookie-parser');
+        var bodyParser = require('body-parser');
+        
+        app.set('views', path.join(__dirname, 'views'));
+        app.set('view engine', 'jade');
+        app.set('secret','ThisIsMySecretPassword');
+        //jwt
+        var jwt = require('express-jwt');
+        var jwtCheck = jwt({
+          secret: app.get('secret'),
+          getToken: function fromCookie(req) {
+            if (req.cookies) {
+              return req.cookies.access_token;
+            } else {
+              return null;
+            }
+          } //TODO: isRevoked
+        });
+        
         self.createRoutes();
         self.app = express.createServer();
-
-        //  Add handlers for the app (from the routes).
-        for (var r in self.routes) {
-            self.app.get(r, self.routes[r]);
+        // uncomment after placing your favicon in /public
+        //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+        self.app.use(logger('dev'));
+        self.app.use(bodyParser.json());
+        self.app.use(bodyParser.urlencoded({ extended: false }));
+        self.app.use(cookieParser());
+        self.app.use(express.static(path.join(__dirname, 'public')));
+        
+        
+        self.app.use('/users/*', jwtCheck);
+        self.app.use('/users', jwtCheck);
+        self.app.use('/api/v1/*/id', jwtCheck);
+        self.app.use('/', self.routes['routes']);
+        self.app.use('/users', self.routes['users']);
+        
+        // catch 404 and forward to error handler
+        self.app.use(function(req, res, next) {
+          var err = new Error('Not Found');
+          err.status = 404;
+          next(err);
+        });
+        
+        // error handlers
+        
+        // development error handler
+        // will print stacktrace
+        if (self.app.get('env') === 'development') {
+          self.app.use(function(err, req, res, next) {
+            //Auth error, go to login
+            if (err.status == 401){
+                res.redirect('/login');
+            }
+            res.status(err.status || 500);
+            res.render('error', {
+              message: err.message,
+              error: err
+            });
+          });
         }
+        
+        // production error handler
+        // no stacktraces leaked to user
+        self.app.use(function(err, req, res, next) {
+          //Auth error, go to login
+          if (err.status == 401){
+                res.redirect('/login');
+            }
+          res.status(err.status || 500);
+          res.render('error', {
+            message: err.message,
+            error: {}
+          });
+        });
+
+        ////  Add handlers for the app (from the routes).
+        //for (var r in self.routes) {
+        //    self.app.get(r, self.routes[r]);
+        //}
     };
 
 
