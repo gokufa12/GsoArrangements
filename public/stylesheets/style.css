@@ -4,7 +4,7 @@ body {
 }
 
 a {
-  color: #00B7FF;
+color: #00B7FF;
 }
 
 ul {
@@ -13,8 +13,8 @@ ul {
 }
 
 .container {
-  max-width: 400px;
-  background-color: #eeeeee;
+  max-width: 100%;
+  background-color: #c8c8c8;
   border: 1px solid black;
 }
 

@@ -1,8 +1,22 @@
 {
   "name": "GsoArrangements",
   "version": "1.0.0",
-  "private": true,
-  "scripts": {
+  "description": "Tracker for Videogame Music Arrangements",
+  "keywords": [
+    "OpenShift",
+    "Node.js",
+    "application",
+    "openshift"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/openshift/origin-server"
+  },
+  "engines": {
+    "node": ">= 0.6.0",
+    "npm": ">= 1.0.0"
+  },
+ "scripts": {
     "start": "node ./bin/www",
     "supervisor": "supervisor ./bin/www",
     "db_init:user": "createuser -U postgres -P -D -A db_user && psql -U postgres -f ./db_scripts/alter_user.sql",
@@ -12,15 +26,27 @@
     "db_init": "npm run db_init:replace && npm run db_init:user && npm run db_init:db && npm_run db_init:instruments"
   },
   "dependencies": {
+     "bluebird": "^3.3.4",
     "body-parser": "~1.13.2",
     "cookie-parser": "~1.3.5",
+    "csv-parse": "^1.1.0",
     "debug": "~2.2.0",
     "express": "~4.13.1",
+    "express-jwt": "^3.3.0",
     "jade": "~1.11.0",
+    "jsonwebtoken": "^5.7.0",
     "morgan": "~1.6.1",
+    "multiparty": "^4.1.2",
+    "ng-file-upload": "^12.0.4",
     "path": "^0.12.7",
     "pg-promise": "^3.0.4",
     "replace": "^0.3.0",
-    "serve-favicon": "~2.3.0"
-  }
+    "serve-favicon": "~2.3.0",
+    "tr-ng-grid": "^3.1.6"
+  },
+  "devDependencies": {},
+  "bundleDependencies": [],
+
+  "private": true,
+  "main": "server.js"
 }
