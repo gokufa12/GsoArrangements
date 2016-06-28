@@ -54,21 +54,19 @@ orchestra_select_all : "SELECT * FROM orchestra",
  * @param res       http response
  */
 executePair : function(sqlArray, valArray, res) {
-    console.log(sqlArray[0] + valArray);
     db.none(sqlArray[0],valArray)
     .then(function() {
         db.query(sqlArray[1])
         .then(function(data) {
             console.log(data);
             if (res === null) {
-                console.log('returning..');
                 return data;
             } else {
                 res.status(200).json(data);
             }
         })
         .catch(function(err) {
-            console.log('Error in post: ' + err);
+            console.error('Error in post: ' + err);
             return res.status(500).json({success: false, reason: err});
         })
     });
@@ -80,27 +78,20 @@ executePair : function(sqlArray, valArray, res) {
  * @param res       http response
  */
 executeQuery : function (sql, valArray, res) {
-    console.log('sql: ' + sql);
     return db.query(sql,valArray)
     .then(function(data) {
-        console.log(sql);
-        console.log(data);
         
         if (res === null) {
-            console.log('returning..' + data);
             //return res;
             return new Promise(function(resolve){
-                console.log('inside the promise?');
                 resolve(data);
-                console.log('done with resolve. data was: ');
-                console.log(data);
             });
         } else {
             res.status(200).json(data);
         }
     })
     .catch(function(err) {
-        console.log(err);
+        console.error(err);
         return res.status(500).json({success: false, reason: err});
     });
 }

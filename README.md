@@ -32,3 +32,8 @@ Run the following and follow the prompts, which will set up your database and lo
 Run ```npm start``` to start the server, which defaults to http://localhost:3000.
 
 You can also use ```npm run supervisor``` if you want to have it run supervisor to watch for changes as you develop.
+
+The OpenShift `nodejs` cartridge documentation can be found at:
+
+http://openshift.github.io/documentation/oo_cartridge_guide.html#nodejs
+

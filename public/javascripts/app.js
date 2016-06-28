@@ -1,4 +1,4 @@
-angular.module('nodeCrud', ['trNgGrid', 'navbarapp'])
+angular.module('nodeCrud', ['trNgGrid'])
 .run(function () {
     TrNgGrid.defaultColumnOptions.displayAlign="center";
     TrNgGrid.defaultPagerMinifiedPageCountThreshold = 3;
@@ -72,20 +72,25 @@ angular.module('nodeCrud', ['trNgGrid', 'navbarapp'])
             });    
     };
 })
-.controller('signupController', function($scope, $http) {
+.controller('signupController', function($scope, $http, $window) {
     
     $scope.formData = {};
 
-    // Sign In
+    // Sign up
     $scope.signUp = function() {
+        
+        if(!$window.confirm('By signing up, you agree to have your contact information published for other users to see. We will not sell your information or use it for any purposes not related to the use of this website.'))
+            return;
+        
         $http.post('/api/v1/signup', $scope.formData)
             .success(function(data) {
                 $scope.formData = {};
-                console.log(data);
+                $window.location.assign('/users/');
             })
             .error(function(error) {
-                console.log('Error: ' + error);
-            });    
+                $window.alert('Error occured while signing up');
+                console.error('Error: ' + error);
+            });
     };
 })
 .controller('browseArrangementsController', function($scope, $http) {
@@ -114,12 +119,10 @@ angular.module('nodeCrud', ['trNgGrid', 'navbarapp'])
     // Get user's info
     $http.get('/api/v1/user/')
         .success(function(data) {
-            console.log('got the users');
             $scope.userData = data;
-            console.log(data);
         })
         .error(function(error) {
-            console.log('Error: ' + error);
+            console.error('Error: ' + error);
         });
         
     // Get user's arrangements
@@ -128,15 +131,12 @@ angular.module('nodeCrud', ['trNgGrid', 'navbarapp'])
         if ($scope.selectedUser[0] != null && $scope.selectedUser[0].user_id !== 0) {
             url = '/api/v1/user/' + $scope.selectedUser[0].user_id + '/song';
         }
-        console.log('Using url: ' + url);
         $http.get(url)
             .success(function(data) {
-                console.log('got the arrangement data');
                 $scope.arrangementData = data;
-                console.log(data);
             })
         .error(function(error) {
-            console.log('Error: ' + error);
+            console.error('Error: ' + error);
         });
     });
     
@@ -150,26 +150,21 @@ angular.module('nodeCrud', ['trNgGrid', 'navbarapp'])
     // Get user's info
     $http.get('/api/v1/user/id')
         .success(function(data) {
-            console.log('got the user');
             $scope.userData = data;
              if ($scope.userData[0] != null && $scope.userData[0].user_id !== 0) {
                 url = '/api/v1/user/' + $scope.userData[0].user_id + '/song';
-           
-                console.log('Using url: ' + url);
+
                 $http.get(url)
                     .success(function(data) {
-                        console.log('got the arrangement data');
                         $scope.arrangementData = data;
-                        console.log(data);
                     })
                 .error(function(error) {
-                    console.log('Error: ' + error);
+                    console.error('Error: ' + error);
                 });
             }
-            console.log($scope.userData);
         })
         .error(function(error) {
-            console.log('Error: ' + error);
+            console.error('Error: ' + error);
         });
         
 })
@@ -183,10 +178,9 @@ angular.module('nodeCrud', ['trNgGrid', 'navbarapp'])
         $http.get('/api/v1/user/song/id')
             .success(function(data) {
                 $scope.arrangementData = data;
-                console.log("successfully got songs");
             })
             .error(function(error) {
-                console.log('Error: ' + error);
+                console.error('Error: ' + error);
             });
     }
     getSongs();
@@ -205,18 +199,16 @@ angular.module('nodeCrud', ['trNgGrid', 'navbarapp'])
         $http.post('/api/v1/song/id', $scope.formData)
             .success(function(data) {
                 $scope.formData = {};
-                console.log("successful");
                 $http.get('/api/v1/user/song/id')
                 .success(function(data) {
                     $scope.arrangementData = data;
-                    console.log("successfully got songs");
                 })
                 .error(function(error) {
-                    console.log('Error: ' + error);
+                    console.error('Error: ' + error);
                 });
             })
             .error(function(error) {
-                console.log('Error: ' + error);
+                console.error('Error: ' + error);
             });    
     };
 })
@@ -230,20 +222,18 @@ angular.module('nodeCrud', ['trNgGrid', 'navbarapp'])
     $http.get('/api/v1/user')
         .success(function(data) {
             $scope.userData = data;
-            console.log(data);
         })
         .error(function(error) {
-            console.log('Error: ' + error);
+            console.error('Error: ' + error);
         });
         
     // Get all songs
     $http.get('/api/v1/song')
         .success(function(data) {
             $scope.songData = data;
-            console.log(data);
         })
         .error(function(error) {
-            console.log('Error: ' + error);
+            console.error('Error: ' + error);
         });
         
     // Create a new song
@@ -261,10 +251,9 @@ angular.module('nodeCrud', ['trNgGrid', 'navbarapp'])
             .success(function(data) {
                 $scope.formData = {};
                 $scope.songData = data;
-                console.log(data);
             })
             .error(function(error) {
-                console.log('Error: ' + error);
+                console.error('Error: ' + error);
             });    
     };
 });
@@ -279,7 +268,6 @@ angular.module('nodeCrud', ['trNgGrid', 'navbarapp'])
         }
         
         vm.upload = function (file) {
-            console.log(file);
             Upload.upload({
                 url: 'http://localhost:3000/api/v1/song/csv', //webAPI exposed to upload the file
                 data:{file:file} //pass file as data, should be user ng-model
@@ -290,7 +278,7 @@ angular.module('nodeCrud', ['trNgGrid', 'navbarapp'])
                     $window.alert('an error occured');
                 }
             }, function (resp) { //catch error
-                console.log('Error status: ' + resp.status);
+                console.error('Error status: ' + resp.status);
                 $window.alert('Error status: ' + resp.status);
             }, function (evt) { 
                 console.log(evt);
@@ -326,15 +314,15 @@ angular.module('navbarapp', [])
                     '</div>' +
                 '</nav>',
     controller: 'navbarCtrl'
-  }})
-  .controller('navbarCtrl', function ($scope, $location) {
-    $scope.isActive = function(path){
-        var currentPath = $location.path().split('/')[1];
-        if (currentPath.indexOf('?') !== -1) {
-            currentPath = currentPath.split('?')[0];
-        }
-        return currentPath === path.split('/')[1];
-    }
-  });
+  }});
+  //.controller('navbarCtrl', function ($scope, $location) {
+  //  $scope.isActive = function(path){
+  //      var currentPath = $location.path().split('/')[1];
+  //      if (currentPath.indexOf('?') !== -1) {
+  //          currentPath = currentPath.split('?')[0];
+  //      }
+  //      return currentPath === path.split('/')[1];
+  //  }
+  //});
   
   
