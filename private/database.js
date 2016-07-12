@@ -1,16 +1,16 @@
-var promise = require('bluebird');
+var Promise = require('bluebird');
 var options = {
-    promiseLib: promise
+    promiseLib: Promise
 };
 var pgp = require('pg-promise')(options);
 var path = require('path');
 /* Config details for the database */
 var config = {
-    host: 'localhost',
-    port: 5432,
+    host: process.env.OPENSHIFT_POSTGRESQL_DB_HOST,
+    port: process.env.OPENSHIFT_POSTGRESQL_DB_PORT,
     database: 'postgres',	//Plan to change this in the future
-    user: 'db_user',
-    password: 'password'
+    user: process.env.OPENSHIFT_POSTGRESQL_DB_USERNAME,
+    password: process.env.OPENSHIFT_POSTGRESQL_DB_PASSWORD
 };
 var db = pgp(config);
 
@@ -91,8 +91,12 @@ executeQuery : function (sql, valArray, res) {
         }
     })
     .catch(function(err) {
-        console.error(err);
-        return res.status(500).json({success: false, reason: err});
+        if (res === null)
+            return new Promise(function(resolve){
+               resolve({success: false, reason: err});
+            });
+        else
+            return res.status(500).json({success: false, reason: err});
     });
 }
 

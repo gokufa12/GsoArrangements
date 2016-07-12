@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-var promise = require('bluebird');
+var Promise = require('bluebird');
 var path = require('path');
 var multiparty = require('multiparty');
 var csv = require('csv-parse');

@@ -100,6 +100,14 @@ var SampleApp = function() {
         self.routes['routes'] = routes;
         self.routes['users'] = users;        
     };
+    
+    self.redirect = function redirectSec(req, res, next) {
+            if (req.headers['x-forwarded-proto'] == 'http') {
+                res.redirect('https://' + req.headers.host + req.path);
+            } else {
+                return next();
+            }
+        };
 
 
     /**
@@ -107,6 +115,9 @@ var SampleApp = function() {
      *  the handlers.
      */
     self.initializeServer = function() {
+        self.createRoutes();
+        self.app = express.createServer();
+        
         // view engine setup
         var path = require('path');
         var favicon = require('serve-favicon');
@@ -114,13 +125,13 @@ var SampleApp = function() {
         var cookieParser = require('cookie-parser');
         var bodyParser = require('body-parser');
         
-        app.set('views', path.join(__dirname, 'views'));
-        app.set('view engine', 'jade');
-        app.set('secret','ThisIsMySecretPassword');
+        self.app.set('views', path.join(__dirname, 'views'));
+        self.app.set('view engine', 'jade');
+        self.app.set('secret','ThisIsMySecretPassword');
         //jwt
         var jwt = require('express-jwt');
         var jwtCheck = jwt({
-          secret: app.get('secret'),
+          secret: self.app.get('secret'),
           getToken: function fromCookie(req) {
             if (req.cookies) {
               return req.cookies.access_token;
@@ -130,7 +141,8 @@ var SampleApp = function() {
           } //TODO: isRevoked
         });
         
-        self.createRoutes();
+        
+        
         self.app = express.createServer();
         // uncomment after placing your favicon in /public
         //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
@@ -139,7 +151,7 @@ var SampleApp = function() {
         self.app.use(bodyParser.urlencoded({ extended: false }));
         self.app.use(cookieParser());
         self.app.use(express.static(path.join(__dirname, 'public')));
-        
+        self.app.use(self.redirect);
         
         self.app.use('/users/*', jwtCheck);
         self.app.use('/users', jwtCheck);
