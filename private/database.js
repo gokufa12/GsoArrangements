@@ -8,7 +8,7 @@ var path = require('path');
 var config = {
     host: process.env.OPENSHIFT_POSTGRESQL_DB_HOST,
     port: process.env.OPENSHIFT_POSTGRESQL_DB_PORT,
-    database: 'postgres',	//Plan to change this in the future
+    database: 'gso',
     user: process.env.OPENSHIFT_POSTGRESQL_DB_USERNAME,
     password: process.env.OPENSHIFT_POSTGRESQL_DB_PASSWORD
 };

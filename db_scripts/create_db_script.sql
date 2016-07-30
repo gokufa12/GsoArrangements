@@ -280,6 +280,7 @@ CREATE TABLE user_info
   email character varying(50) NOT NULL,
   password character(64) NOT NULL,
   salt character varying(64) NOT NULL,
+  verified boolean NOT NULL DEFAULT false,
   CONSTRAINT user_info_pk PRIMARY KEY (email, password),
   CONSTRAINT user_info_gso_user_fk FOREIGN KEY (gso_user_id)
       REFERENCES gso_user (user_id) MATCH SIMPLE

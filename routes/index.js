@@ -5,6 +5,7 @@ var path = require('path');
 var multiparty = require('multiparty');
 var csv = require('csv-parse');
 var jwtoken = require('jsonwebtoken');
+var nodemailer = require('nodemailer');
 
 const crypto = require('crypto');
 const hash = crypto.createHash('sha256');
@@ -16,6 +17,9 @@ var db = require('../private/database.js');
 
 //TODO: replace this with a better logging tool
 var logger = console;
+
+//Keeps track of emails to verify
+var verifyList = [];
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -39,16 +43,59 @@ router.get('/login', function(req, res, next) {
 });
 
 router.get('/signup', function(req, res, next) {
-  res.sendFile(path.join(__dirname, '../views', 'signup.html'));
+    if (req.query.failed_email_verify) {
+        res.sendFile(path.join(__dirname, '../views', 'signup_retry.html'));
+    } else {
+        res.sendFile(path.join(__dirname, '../views', 'signup.html'));
+    }
 });
+
+router.get('/signup/:hash', function(req, res, next) {
+    var currTime = new Date();
+    
+    function removeOld(verify) {
+        //If expired, remove it
+        if (verify.expire < currTime) {
+            db.executeQuery('DELETE FROM gso_user WHERE \"e-mail\"=$1', [verify.email], null)
+            .then(function() {
+                db.executeQuery('DELETE FROM user_info WHERE email = $1', [verify.email], null);
+            });
+            return false;
+        }
+        return true;
+    }
+    
+    function match(verify) {
+        logger.log(verify);
+        logger.log(req.params.hash === verify.hash);
+        return verify.hash === req.params.hash;
+    }
+    
+    //Iterate over verifyList
+    verifyList = verifyList.filter(removeOld);
+    //Find matching hash
+    var index = verifyList.findIndex(match);
+    logger.log(index);
+    if (index >= 0) {
+        //Found match, flip the verify flag
+        db.executeQuery('UPDATE user_info SET verified=true WHERE email=$1',[verifyList[index].email], null)
+        .then(function() {
+            res.redirect('/login');
+        });
+    } else {
+        res.redirect('/signup?failed_email_verify=true');
+    }
+});
+
+
 
 function authenticate(email, password, create) {
 
-    return db.executeQuery('SELECT salt FROM user_info WHERE email = $1', [email],null)
-    .then(function(salt) {
-        //if salt existed
-        if (salt && (salt.length > 0) && (salt[0].salt != "")) {
-            var hash = genHash(salt[0].salt + password);
+    return db.executeQuery('SELECT salt, verified  FROM user_info WHERE email = $1', [email],null)
+    .then(function(results) {
+        //if salt existed AND account was verified
+        if (results && (results.length > 0) && (results[0].salt != "") && (results[0].verified)) {
+            var hash = genHash(results[0].salt + password);
             //Returns a promise with either the user data or null
             return db.executeQuery('SELECT gso_user_id FROM user_info WHERE email=$1 AND password=$2',
                           [email, hash],null)
@@ -81,7 +128,7 @@ function signup(email, password, create) {
                 var hash = genHash(salt + password);
                 var values = [result[0].user_id, email, hash, salt];
                 
-                return db.executeQuery('INSERT INTO user_info (gso_user_id, email, password, salt) VALUES($1,$2,$3,$4) RETURNING gso_user_id, salt',values, null);
+                return db.executeQuery('INSERT INTO user_info (gso_user_id, email, password, salt, verified) VALUES($1,$2,$3,$4,FALSE) RETURNING gso_user_id, salt',values, null);
             });
         }
     });
@@ -131,12 +178,60 @@ router.get('/api/v1/logout', function(req, res) {
     //});
 });
 
+router.post('/api/v1/signup/mail', function(req, res){
+    var date = new Date();
+    date = date.setTime(date.getTime() + (6000 * 60));  //time + 60 minutes
+    
+    //Push our verify to the list
+    verifyList.push({
+        expire: date,
+        hash: req.body.hash,
+        email: req.body.mail
+    });
+    
+    //send email with verification link
+    var transporter = nodemailer.createTransport({
+        service: 'Gmail',
+        auth: {
+            user: 'gso.arrangements@gmail.com', // Your email id
+            pass: process.env.GMAIL_PASSWORD // Your password
+        }
+    });
+    logger.log(req.body);
+    logger.log(req.body.mail);
+    var link = 'https://' + req.headers.host + '/signup/' + req.body.hash;
+    var text = "Thanks for signing up for GSO Arrangements. Follow the link to complete registration: " + link;
+    var mailOptions = {
+        from: 'GSO Arrangements <gso.arrangements@gmail.com>', // sender address
+        to: req.body.mail, // list of receivers
+        subject: 'GSO Arrangements Signup', // Subject line
+        text: text //, // plaintext body
+    };
+
+    transporter.sendMail(mailOptions, function(error, info){
+        if(error){
+            logger.log(error);
+            res.status(500).json({yo: 'error'});
+        }else{
+            logger.log('Message sent: ' + info.response);
+            res.json({yo: info.response});
+        };
+    });
+    
+    transporter.close();    //shut down the conneciton
+});
+
 router.post('/api/v1/signup', function(req, res) {
     var vals = [req.body.name, req.body.email];
     signup(req.body.email, req.body.password, vals)
     .then(function(data) {
         logger.log('SIGNUP: ' + vals);
-      resolveJWT(data, res);
+        res.status(200).json({ success: true});
+    })
+    .error(function(error) {
+        //Something failed
+        logger.log('Signup error: ' + error);
+        res.status(401).json({ success: false, message: 'Signup failed.'});
     });
 });
 

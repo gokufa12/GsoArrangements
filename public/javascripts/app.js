@@ -72,7 +72,15 @@ angular.module('nodeCrud', ['trNgGrid'])
             });    
     };
 })
-.controller('signupController', function($scope, $http, $window) {
+.controller('signupController', function($scope, $http, $window, $location) {
+     var randomString = function(length) {
+        var text = "";
+        var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        for(var i = 0; i < length; i++) {
+            text += possible.charAt(Math.floor(Math.random() * possible.length));
+        }
+        return text;
+    }
     
     $scope.formData = {};
 
@@ -84,8 +92,15 @@ angular.module('nodeCrud', ['trNgGrid'])
         
         $http.post('/api/v1/signup', $scope.formData)
             .success(function(data) {
-                $scope.formData = {};
-                $window.location.assign('/users/');
+                $http.post('/api/v1/signup/mail', { mail: $scope.formData.email, hash : randomString(20)})
+                .success(function(data) {
+                    $scope.formData = {};
+                    $window.alert('Please check for verification email.');
+                })
+                .error(function(error) {
+                    $window.alert('Error occured while signing up - try a different email');
+                    console.error('Error: ' + error);
+                });
             })
             .error(function(error) {
                 $window.alert('Error occured while signing up');

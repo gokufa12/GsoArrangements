@@ -116,7 +116,7 @@ var SampleApp = function() {
      */
     self.initializeServer = function() {
         self.createRoutes();
-        self.app = express.createServer();
+        self.app = express();
         
         // view engine setup
         var path = require('path');
@@ -141,9 +141,6 @@ var SampleApp = function() {
           } //TODO: isRevoked
         });
         
-        
-        
-        self.app = express.createServer();
         // uncomment after placing your favicon in /public
         //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
         self.app.use(logger('dev'));
