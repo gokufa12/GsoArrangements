@@ -44,7 +44,10 @@
                     </div>
                     <label class="col-lg-2 control-label" for="inputPass">Password</label>
                     <div class="col-lg-10">
-                      <input class="form-control" id="intputPass" type="password" placeholder="Enter password..." ng-model="formData.password">
+                      <input class="form-control" name="password" id="intputPass" type="password" placeholder="Enter password..." ng-model="formData.password">
+                    </div>
+                    <div class="col-lg-10">
+                      <input class="form-control" name="confirmPass" id="confirmPass" type="password" placeholder="Confirm password..." ng-model="formData.confirmPassword" same-as="password">
                     </div>
                   </div>
                   <div class="form-group">

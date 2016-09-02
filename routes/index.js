@@ -71,14 +71,18 @@ router.get('/signup/:hash', function(req, res, next) {
         return verify.hash === req.params.hash;
     }
     
-    //Iterate over verifyList
+    function notMatch(verify) {
+        return !match(verify);
+    }
+
+    //Iterate over verifyList and remove expired things
     verifyList = verifyList.filter(removeOld);
     //Find matching hash
-    var index = verifyList.findIndex(match);
-    logger.log(index);
-    if (index >= 0) {
+    var found = verifyList.filter(match);
+    if (found) {
+        verifyList = verifyList.filter(notMatch);
         //Found match, flip the verify flag
-        db.executeQuery('UPDATE user_info SET verified=true WHERE email=$1',[verifyList[index].email], null)
+        db.executeQuery('UPDATE user_info SET verified=true WHERE email=$1',[found[0].email], null)
         .then(function() {
             res.redirect('/login');
         });
