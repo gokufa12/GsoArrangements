@@ -1,0 +1,62 @@
+<%layout('layout') -%>
+    <script type="text/javascript" src="/javascripts/ng-file-upload.min.js"></script>
+    <script type="text/javascript" src="/javascripts/ng-file-upload-shim.min.js"></script>
+    <div ng-app="nodeCrud" ng-controller="userProfileController" style="width:100%" ng-cloak>
+        <div ng-model="userData">
+            <div>
+                <h1 class="header" ng-cloak>Welcome, {{userData[0].name}}</h1>
+            </div>
+            <div class="container-fluid" ><!--style="float:left; width:48%; max-width: 48%">-->
+                <h2 class="header">Your Arrangements</h2>
+                <table selection-mode="None" items="arrangementData" tr-ng-grid="">
+                    <thead>
+                        <tr>
+                            <th field-name="title" display-name="Title" display-align="bottom"></th>
+                            <th field-name="name" display-name="Arranger" display-align="bottom"></th>
+                            <th field-name="game_title" display-name="Game" display-align="bottom"></th>
+                            <th field-name="date" display-name="Date" display-format="date:'MMM yyyy'"></th>
+                            
+                            <!--<th field-name="avg_rating" display-name="Rating"></th>
+                            <th field-name="avg_difficulty" display-name="Difficulty"></th>-->
+                        </tr>
+                    </thead>
+                    <!--<tbody>
+                        <tr>
+                            <td field-name="title"></td>
+                            <td field-name="date"></td>
+                            <td field-name="avg_rating"></td>
+                            <td field-name="avg_difficulty"></td>
+                        </tr>
+                    </tbody>-->
+                </table>
+            </div>
+            <!--<div class="review-list" style="float:right; width:48%; max-width: 48%">
+                <table tr-ng-grid="" items="reviewData">
+                    <thead>
+                        <tr>
+                            <th field-name="instrument" display-name="Instrument" display-align="bottom"></th>
+                            <th field-name="overall_rating" display-name="Overall Rating" display-align="bottom"></th>
+                            <th field-name="part_rating" display-name="Part Rating"></th>
+                            <th field-name="part_difficulty" display-name="Part Difficulty"></th>
+                            <th field-name="comments" display-name="Comments"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td field-name="instrument"></td>
+                            <td field-name="overall_rating"></td>
+                            <td field-name="part_rating"></td>
+                            <td field-name="part_difficulty"></td>
+                            <td field-name="comments" style="word-wrap: break-word; word-break: break-all"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>-->
+            <br>
+        </div>   
+    </div>
+    <script type="text/javascript">
+            $(document).ready(function() {
+                $('#dashboard').addClass("active");
+            });
+    </script>

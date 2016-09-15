@@ -1,0 +1,53 @@
+<%layout('layout') -%>    
+    <div ng-app="nodeCrud" ng-controller="addSongController">
+        <div>
+            <div class="container-fluid song-form ng-cloak">
+                <form class="form-horizontal">
+                    <fieldset>
+                      <legend>Add Song</legend>
+                      <div class="form-group">
+                        <label class="col-lg-2 control-label" for="inputTitle">Title</label>
+                        <div class="col-lg-10">
+                          <input class="form-control" id="intputTitle" type="text" placeholder="Title" ng-model="formData.title">
+                        </div>
+                        <label class="col-lg-2 control-label" for="inputTitle">Game Series</label>
+                        <div class="col-lg-10">
+                          <input class="form-control" id="intputTitle" type="text" placeholder="Game Title/Series" ng-model="formData.game_title">
+                        </div>
+                        <label class="col-lg-2 control-label" for="inputTitle">Arrangement Date</label>
+                        <div class="col-lg-10">
+                          <input class="form-control" id="intputTitle" type="month" ng-model="formData.date">
+                        </div>
+                      </div>
+                      <div class="form-group">
+                        <div class="col-lg-10 col-lg-offset-2">
+                          <button class="btn btn-primary" type="submit" ng-click="createSong()">Submit</button>
+                        </div>
+                      </div>
+                    </fieldset>
+                </form>
+            </div>
+            <div class="container-fluid" ><!--style="float:left; width:48%; max-width: 48%">-->
+                <h2 class="header">Your Arrangements</h2>
+                <table selection-mode="None" items="arrangementData" tr-ng-grid="">
+                    <thead>
+                        <tr>
+                            <th field-name="title" display-name="Title" display-align="bottom"></th>
+                            <th field-name="name" display-name="Arranger" display-align="bottom"></th>
+                            <th field-name="game_title" display-name="Game" display-align="bottom"></th>
+                            <th field-name="date" display-name="Date" display-format="date:'MMM yyyy'"></th>
+                            
+                            <!--<th field-name="avg_rating" display-name="Rating"></th>
+                            <th field-name="avg_difficulty" display-name="Difficulty"></th>-->
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+            $(document).ready(function() {
+                $('#addsong').addClass("active");
+            });
+    </script>
