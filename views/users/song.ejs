@@ -14,9 +14,19 @@
                         <div class="col-lg-10">
                           <input class="form-control" id="intputTitle" type="text" placeholder="Game Title/Series" ng-model="formData.game_title">
                         </div>
+                        <label class="col-lg-2 control-label" for="inputTitle">Associated Group</label>
+                        <div class="col-lg-10">
+                          <select class="form-control ng-cloak" name="orchestraSelect" id="orchestraSelect" ng-model="formData.orchestra_id">
+                            <option ng-repeat="orchestra in orchestraData" value="{{orchestra.orchestra_id}}">{{orchestra.orchestra_name}}</option>
+                          </select>
+                        </div>
                         <label class="col-lg-2 control-label" for="inputTitle">Arrangement Date</label>
                         <div class="col-lg-10">
                           <input class="form-control" id="intputTitle" type="month" ng-model="formData.date">
+                        </div>
+                        <label class="col-lg-2 control-label" for="inputTitle">Arrangement Duration</label>
+                        <div class="col-lg-10">
+                          <input class="form-control" id="intputTitle" type="number" placeholder="Enter duration in minutes..." ng-model="formData.duration">
                         </div>
                       </div>
                       <div class="form-group">
@@ -35,6 +45,7 @@
                             <th field-name="title" display-name="Title" display-align="bottom"></th>
                             <th field-name="name" display-name="Arranger" display-align="bottom"></th>
                             <th field-name="game_title" display-name="Game" display-align="bottom"></th>
+                            <th field-name="orc" display-name="Orchestra" display-align="bottom"></th>
                             <th field-name="date" display-name="Date" display-format="date:'MMM yyyy'"></th>
                             
                             <!--<th field-name="avg_rating" display-name="Rating"></th>

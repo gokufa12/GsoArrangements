@@ -7,6 +7,12 @@
                 <h1 class="header" ng-cloak>Welcome, {{userData[0].name}}</h1>
             </div>
             <div class="container-fluid" ><!--style="float:left; width:48%; max-width: 48%">-->
+                <!--TODO: Add a way to enable editing
+                TODO: Find out if we can edit values in the table, or allow it to go to an edit page
+                
+                myGSOs
+                myInstruments
+                -->
                 <h2 class="header">Your Arrangements</h2>
                 <table selection-mode="None" items="arrangementData" tr-ng-grid="">
                     <thead>
@@ -14,8 +20,8 @@
                             <th field-name="title" display-name="Title" display-align="bottom"></th>
                             <th field-name="name" display-name="Arranger" display-align="bottom"></th>
                             <th field-name="game_title" display-name="Game" display-align="bottom"></th>
+                            <th field-name="orc" display-name="Orchestra" display-align="bottom"></th>
                             <th field-name="date" display-name="Date" display-format="date:'MMM yyyy'"></th>
-                            
                             <!--<th field-name="avg_rating" display-name="Rating"></th>
                             <th field-name="avg_difficulty" display-name="Difficulty"></th>-->
                         </tr>

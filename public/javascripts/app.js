@@ -187,6 +187,17 @@ angular.module('nodeCrud', ['trNgGrid'])
     
     $scope.formData = {};
     $scope.arrangementData = {};
+    $scope.orchestraData = {};
+    
+    //Get all ensembles
+    $http.get('/api/v1/orchestra')
+        .success(function(data) {
+            $scope.orchestraData = data;
+            console.log(data);
+        })
+        .error(function(error) {
+            console.log('Error: ' + error);
+        });
         
     // Get users songs
     function getSongs() {
@@ -305,7 +316,7 @@ angular.module('nodeCrud', ['trNgGrid'])
         
         vm.upload = function (file) {
             Upload.upload({
-                url: 'http://localhost:3000/api/v1/song/csv', //webAPI exposed to upload the file
+                url: '/api/v1/song/csv', //webAPI exposed to upload the file
                 data:{file:file} //pass file as data, should be user ng-model
             }).then(function (resp) { //upload function returns a promise
                 if(resp.status === 200){ //validate success
