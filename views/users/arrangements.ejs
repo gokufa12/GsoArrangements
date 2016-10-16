@@ -1,0 +1,75 @@
+<%layout('layout') -%>    
+    <body ng-app="nodeCrud" ng-controller="browseArrangementsController" style="width:100%">
+        <div style="width:100%">
+            <div>
+                <h2 class="header">Arrangers</h2>
+            </div>
+            <div class="display-info container-fluid">
+                <table selection-mode="SingleRow" selected-items="selectedUser" tr-ng-grid="" items="userData" enable-filtering="true" page-items="7" enable-sorting="false" >
+                    <thead>
+                        <tr>
+                            <th field-name="name" display-name="Name"></th>
+                            <th field-name="e-mail" display-name="Email"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td field-name="name"></td>
+                            <td field-name="e-mail"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+             <div>
+                <h2 class="header">Arrangements</h2>
+            </div>
+            <div class="arrangement-list container-fluid" ><!--style="float:left; width:48%; max-width: 48%">-->
+                <table selection-mode="SingleRow" selected-items="selectedSong"  items="arrangementData" page-items="7" tr-ng-grid="">
+                    <thead>
+                        <tr>
+                            <th field-name="title" display-name="Title" display-align="bottom"></th>
+                            <th field-name="name" display-name="Arranger" display-align="bottom"></th>
+                            <th field-name="game_title" display-name="Game" display-align="bottom"></th>
+                            <th field-name="orc" display-name="Orchestra" display-align="bottom"></th>
+                            <th field-name="duration" display-name="Duration (seconds)" display-align="bottom"></th>
+                            <th field-name="date" display-name="Date" display-format="date:'MMM yyyy'"></th>
+                            
+                            
+                            <!--<th field-name="avg_rating" display-name="Rating"></th>
+                            <th field-name="avg_difficulty" display-name="Difficulty"></th>-->
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+            <!--<div class="review-list" style="float:right; width:48%; max-width: 48%">
+                <table tr-ng-grid="" items="reviewData">
+                    <thead>
+                        <tr>
+                            <th field-name="instrument" display-name="Instrument" display-align="bottom"></th>
+                            <th field-name="overall_rating" display-name="Overall Rating" display-align="bottom"></th>
+                            <th field-name="part_rating" display-name="Part Rating"></th>
+                            <th field-name="part_difficulty" display-name="Part Difficulty"></th>
+                            <th field-name="comments" display-name="Comments"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td field-name="instrument"></td>
+                            <td field-name="overall_rating"></td>
+                            <td field-name="part_rating"></td>
+                            <td field-name="part_difficulty"></td>
+                            <td field-name="comments" style="word-wrap: break-word; word-break: break-all"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>-->
+            <br>
+            
+        </div>
+    </div>
+
+    <script type="text/javascript">
+            $(document).ready(function() {
+                $('#arrangements').addClass("active");
+            });
+    </script>

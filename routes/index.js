@@ -7,6 +7,10 @@ var csv = require('csv-parse');
 var jwtoken = require('jsonwebtoken');
 var nodemailer = require('nodemailer');
 
+//TODO: modify code so this can be removed
+var AsyncLock = require('async-lock');
+var lock = new AsyncLock();
+
 const crypto = require('crypto');
 const hash = crypto.createHash('sha256');
 function genHash(data) {
@@ -23,7 +27,7 @@ var verifyList = [];
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  res.sendFile(path.join(__dirname, '../views', 'index.html'));
+    res.render('index', { title: 'GSO Arrangements'});
 });
 
 router.get('/user', function(req, res, next) {
@@ -39,14 +43,14 @@ router.get('/song', function(req, res, next) {
 });
 
 router.get('/login', function(req, res, next) {
-  res.sendFile(path.join(__dirname, '../views', 'login.html'));
+    res.render('login', { title: 'GSO Arrangements Sign Up'});
 });
 
 router.get('/signup', function(req, res, next) {
     if (req.query.failed_email_verify) {
-        res.sendFile(path.join(__dirname, '../views', 'signup_retry.html'));
+        res.render('signup_retry', { title: 'GSO Arrangements Sign Up'});
     } else {
-        res.sendFile(path.join(__dirname, '../views', 'signup.html'));
+        res.render('signup', { title: 'GSO Arrangements Sign Up'});
     }
 });
 
@@ -126,6 +130,7 @@ function signup(email, password, create) {
             //  Everything should be cool. Add stuff to gso_user first, then add user_info
             return db.executeQuery(db.user_insert,create,null)
             .then(function(result) {
+                //TODO: What if we have a duplicate user?
                 logger.log("NEW_USER: " + result);
                 const buffer = crypto.randomBytes(32);
                 salt = buffer.toString('hex');
@@ -152,11 +157,11 @@ function resolveJWT(data, res, date) {
                           issuer: 'http://gamersymphonyorch.org'};
             var myToken = jwtoken.sign(payload, secrets, options);
             //Set it in the cookie
-            res.cookie('access_token', myToken, {secure: false, httpOnly: false});
+            res.cookie('access_token', myToken, {secure: true, httpOnly: true});
             //res.append('Set-Cookie', 'foo=bar; Path=/; HttpOnly;');
             //res.cookie('Warning', '199 Miscellaneous warning',{secure: false, httpOnly: false });
             //Set cookie to avoid XSRF
-            res.cookie('XSRF-TOKEN', myXSRF, {secure: false, httpOnly: false });
+            res.cookie('XSRF-TOKEN', myXSRF, {secure: true, httpOnly: true });
             res.status(200).json({ success: true, jwt: myToken});
         } else {
             //Something failed
@@ -229,7 +234,7 @@ router.post('/api/v1/signup', function(req, res) {
     var vals = [req.body.name, req.body.email];
     signup(req.body.email, req.body.password, vals)
     .then(function(data) {
-        logger.log('SIGNUP: ' + vals);
+        //logger.log('SIGNUP: ' + vals);
         res.status(200).json({ success: true});
     })
     .error(function(error) {
@@ -281,12 +286,12 @@ router.delete('/api/v1/user/:user_id', function(req, res) {
 
 //Song Create
 router.post('/api/v1/song', function(req, res) {
-    var vals = [req.body.user_id, req.body.title, req.body.game_title, req.body.date];
+    var vals = [req.body.user_id, req.body.title, req.body.game_title, req.body.date, req.body.duration, req.body.orchestra_id];
     db.executePair([db.song_insert, db.song_select_all], vals, res);
 });
 
 router.post('/api/v1/song/id', function(req, res) {
-    var vals = [req.user.user_id, req.body.title, req.body.game_title, req.body.date];
+    var vals = [req.user.user_id, req.body.title, req.body.game_title, req.body.date, req.body.duration, req.body.orchestra_id];
     db.executeQuery(db.song_insert, vals, res);
 });
 
@@ -301,8 +306,61 @@ router.post('/api/v1/song/csv', function(req, res) {
         }
     });
     
+    //TODO: make this less disgusting
+    //TODO: see if we can move this to a stream
     parser.on('finish', function() {
-        //TODO: batch inserts
+        
+        function thing(row, index, array) {
+            const title = row[0],
+            game = row[1],
+            name = row[2],
+            email = row[3],
+            orchestra = row[4],
+            date = new Date(row[5]),
+            duration = row[6];
+            
+            //Gross locking
+            lock.acquire('db', ()=> {
+            return db.executeQuery("SELECT user_id FROM gso_user WHERE name = $1 AND \"e-mail\" = $2", [name,email],null)
+            .then(function(data) {
+                logger.log('user_id data: ');
+                logger.log(data);
+                if (!data || data.length === 0) {
+                    logger.log('add user...');
+                    //add user
+                    return db.executeQuery(db.user_insert, [name,email],null);
+                } else {
+                    return new Promise(function(resolve){
+                        resolve(data);
+                    });
+                }
+            }).then(function(user_id) {
+                logger.log('got user_id? : ');
+                logger.log(user_id);
+                //See if orchestra exists - keep a set here so we don't have to keep querying everything
+                db.executeQuery('SELECT orchestra_id FROM orchestra WHERE orchestra_name = $1', [orchestra],null)
+                .then(function(orc){
+                    if (!orc) {
+                        //add orc
+                        return db.executeQuery(db.orchestra_insert, [orchestra,'no email'],null);
+                    } else {
+                        return new Promise(function(resolve){
+                            resolve(orc);
+                        });
+                    }
+                })
+                .then(function(orc_id) {
+                    logger.log('we got orc_id: ' + orc_id);
+                    logger.log(orc_id);
+                    //logger.log([user_id[0].user_id, title, game, date, duration, orc_id[0].orchestra_id]);
+                    //Finally, we can insert the song
+                    return db.executeQuery(db.song_insert,[user_id[0].user_id, title, game, date, duration, orc_id[0].orchestra_id], null);
+                });
+            });
+        });
+        }
+            
+        output.forEach(thing);
     });
 
     form.on('error', function(err) {

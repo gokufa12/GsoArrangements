@@ -24,10 +24,12 @@ user_select_one : "SELECT * FROM gso_user WHERE user_id=$1",
 user_update : "UPDATE gso_user SET name=$1, \"e-mail\"=$2 WHERE user_id=$3 RETURNING *",
 //TODO: Delete will have to cascade to satisfy foreign key constraints
 user_delete : "DELETE FROM gso_user WHERE user_id=$1",
+user_instrument_instert : "INSERT INTO user_instruments (user_id, instrument_id) VALUES ($1,$2) returning instrument_id",
+user_orchestra_insert : "INSERT INTO user_orchestras (user_id, orchestra_id) VALUES ($1, $2) returning orchestra_id",
 
-song_insert : "INSERT INTO song (user_id, title, game_title, date) VALUES ($1,$2,$3,$4) RETURNING *",
-song_select_all : "SELECT song.*, gso_user.name FROM song NATURAL JOIN gso_user",
-song_by_user : "SELECT song.*, gso_user.name FROM song NATURAL JOIN gso_user WHERE user_id=$1",
+song_insert : "INSERT INTO song (user_id, title, game_title, date, duration, orchestra_id) VALUES ($1,$2,$3,$4,$5,$6) RETURNING *",
+song_select_all : "SELECT song.*, gso_user.name, orchestra.orchestra_name as orc FROM (song NATURAL JOIN gso_user) INNER JOIN orchestra ON orchestra.orchestra_id = song.orchestra_id",
+song_by_user : "SELECT song.*, gso_user.name, orchestra.orchestra_name as orc FROM (song NATURAL JOIN gso_user) INNER JOIN orchestra ON orchestra.orchestra_id = song.orchestra_id WHERE user_id = $1",
 song_update : "UPDATE song SET title=$1, date=$2 WHERE song_id=$3",
 //TODO: Delete will have to cascade to satisfy foreign key constraints
 song_delete : "DELETE FROM song WHERE song_id=$1",
@@ -46,6 +48,7 @@ review_select : "SELECT instrument.name as instrument, overall_rating, part_rati
             + "WHERE song_id = $1",
 instrument_select_all : "SELECT * FROM instrument",
 orchestra_select_all : "SELECT * FROM orchestra",
+orchestra_insert : "INSERT INTO orchestra (orchestra_name, email) VALUES ($1, $2)",
 
 
 /** Generic post
@@ -80,7 +83,6 @@ executePair : function(sqlArray, valArray, res) {
 executeQuery : function (sql, valArray, res) {
     return db.query(sql,valArray)
     .then(function(data) {
-        
         if (res === null) {
             //return res;
             return new Promise(function(resolve){

@@ -124,9 +124,12 @@ var SampleApp = function() {
         var logger = require('morgan');
         var cookieParser = require('cookie-parser');
         var bodyParser = require('body-parser');
+        var engine = require('ejs-locals');
         
         self.app.set('views', path.join(__dirname, 'views'));
-        self.app.set('view engine', 'jade');
+        self.app.engine('ejs', engine);
+        self.app.set('view engine', 'ejs');
+        //self.app.set('view engine', 'jade');
         self.app.set('secret','ThisIsMySecretPassword');
         //jwt
         var jwt = require('express-jwt');
@@ -174,7 +177,7 @@ var SampleApp = function() {
                 res.redirect('/login');
             }
             res.status(err.status || 500);
-            res.render('error', {
+            res.send( {
               message: err.message,
               error: err
             });
@@ -236,4 +239,3 @@ var SampleApp = function() {
 var zapp = new SampleApp();
 zapp.initialize();
 zapp.start();
-
