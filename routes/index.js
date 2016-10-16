@@ -157,11 +157,11 @@ function resolveJWT(data, res, date) {
                           issuer: 'http://gamersymphonyorch.org'};
             var myToken = jwtoken.sign(payload, secrets, options);
             //Set it in the cookie
-            res.cookie('access_token', myToken, {secure: false, httpOnly: false});
+            res.cookie('access_token', myToken, {secure: true, httpOnly: true});
             //res.append('Set-Cookie', 'foo=bar; Path=/; HttpOnly;');
             //res.cookie('Warning', '199 Miscellaneous warning',{secure: false, httpOnly: false });
             //Set cookie to avoid XSRF
-            res.cookie('XSRF-TOKEN', myXSRF, {secure: false, httpOnly: false });
+            res.cookie('XSRF-TOKEN', myXSRF, {secure: true, httpOnly: true });
             res.status(200).json({ success: true, jwt: myToken});
         } else {
             //Something failed
