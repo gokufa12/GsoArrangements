@@ -26,6 +26,7 @@
     "db_init": "npm run db_init:replace && npm run db_init:user && npm run db_init:db && npm_run db_init:instruments"
   },
   "dependencies": {
+    "async-lock": "^0.3.8",
     "bluebird": "^3.3.4",
     "body-parser": "~1.13.2",
     "cookie-parser": "~1.3.5",
