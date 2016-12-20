@@ -45,3 +45,5 @@ Temporary Items
 # node modules
 node_modules/*
 
+# minified program - we aren't concerned with uploading this
+out/
