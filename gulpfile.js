@@ -8,7 +8,7 @@ var livereload  = require('gulp-livereload');
 
 
 // executes without any additional args; the default
-gulp.task('default', ['watch-changes']);
+gulp.task('default', ['watch-changes', 'run']);
 
 gulp.task('watch-changes', function() {
     gulp.watch('src/**/*.js', ['jshint', 'uglify-js']); 
@@ -27,7 +27,7 @@ gulp.task('start-server', function() {
             env: 'development'
         }
     }).on('restart', function() {
-        gulp.src('server.js')
+        gulp.src('./bin/www')
             .pipe(livereload());
     });
 });
