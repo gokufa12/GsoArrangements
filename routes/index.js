@@ -340,8 +340,9 @@ router.post('/api/v1/song/csv', function(req, res) {
                 //See if orchestra exists - keep a set here so we don't have to keep querying everything
                 db.executeQuery('SELECT orchestra_id FROM orchestra WHERE orchestra_name = $1', [orchestra],null)
                 .then(function(orc){
-                    if (!orc) {
+                    if (!orc || orc.length === 0) {
                         //add orc
+                        logger.log('Adding new orchestra: ' + orchestra);
                         return db.executeQuery(db.orchestra_insert, [orchestra,'no email'],null);
                     } else {
                         return new Promise(function(resolve){
