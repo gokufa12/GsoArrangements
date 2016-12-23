@@ -8,7 +8,7 @@ var livereload  = require('gulp-livereload');
 
 
 // executes without any additional args; the default
-gulp.task('default', ['watch-changes', 'run']);
+gulp.task('default', [/*'wiredep-inject',*/ 'watch-changes', 'run']);
 
 gulp.task('watch-changes', function() {
     gulp.watch('src/**/*.js', ['jshint', 'uglify-js']); 
@@ -18,17 +18,17 @@ gulp.task('watch-changes', function() {
 gulp.task('run', ['start-server']);
 
 gulp.task('start-server', function() {
-    livereload.listen();
+    livereload.listen({port:8081});
     
     nodemon({
-        script: './bin/www',
+        script: 'server.js',
         ext: 'html js css',
         env: {
             env: 'development'
         }
     }).on('restart', function() {
-        gulp.src('./bin/www')
-            .pipe(livereload());
+        gulp.src('server.js')
+            .pipe(livereload({port:8081}));
     });
 });
 
@@ -38,6 +38,16 @@ gulp.task('jshint', function() {
         .pipe(jshint())
         .pipe(jshint.reporter('jshint-stylish'));
 });
+
+// TODO need to determine how to pipe this in the correct order
+/*
+gulp.task('wiredep-inject', function() {
+    var wiredep = require('wiredep').stream;
+    gulp.src('src/client/*.html')
+        .pipe(wiredep())
+        .pipe(gulp.dest('src'));
+});
+*/
 
 // minifies all JS files from the client/server code
 gulp.task('uglify-js', function() {

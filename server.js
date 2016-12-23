@@ -21,13 +21,13 @@ var SampleApp = function() {
      */
     self.setupVariables = function() {
         //  Set the environment variables we need.
-        self.ipaddress = process.env.OPENSHIFT_NODEJS_IP;
+        self.ipaddress = process.env.OPENSHIFT_NODEJS_IP || process.env.C9_NODEJS_IP;
         self.port      = process.env.OPENSHIFT_NODEJS_PORT || 8080;
 
         if (typeof self.ipaddress === "undefined") {
             //  Log errors on OpenShift but continue w/ 127.0.0.1 - this
             //  allows us to run/test the app locally.
-            console.warn('No OPENSHIFT_NODEJS_IP var, using 127.0.0.1');
+            console.warn('No OPENSHIFT_NODEJS_IP or C9_NODEJS_IP vars detected, using 127.0.0.1');
             self.ipaddress = "127.0.0.1";
         };
     };
@@ -125,6 +125,7 @@ var SampleApp = function() {
         var cookieParser = require('cookie-parser');
         var bodyParser = require('body-parser');
         var engine = require('ejs-locals');
+        var serverRoutes = require('./server/server-routes.js');
         
         self.app.set('views', path.join(__dirname, 'views'));
         self.app.engine('ejs', engine);
@@ -156,8 +157,9 @@ var SampleApp = function() {
         self.app.use('/users/*', jwtCheck);
         self.app.use('/users', jwtCheck);
         self.app.use('/api/v1/*/id', jwtCheck);
-        self.app.use('/', self.routes['routes']);
-        self.app.use('/users', self.routes['users']);
+        /*self.app.use('/', self.routes['routes']);
+        self.app.use('/users', self.routes['users']);*/
+        serverRoutes(self.app); // hooks in express routes
         
         // catch 404 and forward to error handler
         self.app.use(function(req, res, next) {
