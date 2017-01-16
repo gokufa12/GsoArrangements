@@ -125,7 +125,7 @@ var SampleApp = function() {
         var cookieParser = require('cookie-parser');
         var bodyParser = require('body-parser');
         var engine = require('ejs-locals');
-        var serverRoutes = require('./server/server-routes.js');
+        var serverRoutes = require('./src/server/server-routes.js');
         
         self.app.set('views', path.join(__dirname, 'views'));
         self.app.engine('ejs', engine);
