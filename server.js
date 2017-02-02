@@ -124,12 +124,12 @@ var SampleApp = function() {
         var logger = require('morgan');
         var cookieParser = require('cookie-parser');
         var bodyParser = require('body-parser');
-        var engine = require('ejs-locals');
+        //var engine = require('ejs-locals');
         var serverRoutes = require('./src/server/server-routes.js');
         
-        self.app.set('views', path.join(__dirname, 'views'));
-        self.app.engine('ejs', engine);
-        self.app.set('view engine', 'ejs');
+        //self.app.set('views', path.join(__dirname, 'views'));
+        //self.app.engine('ejs', engine);
+        //self.app.set('view engine', 'ejs');
         //self.app.set('view engine', 'jade');
         self.app.set('secret','ThisIsMySecretPassword');
         //jwt
