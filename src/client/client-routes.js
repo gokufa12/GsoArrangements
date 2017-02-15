@@ -21,7 +21,7 @@
         var _routes = [
             // example routing below: create your own relative paths!
             /*{path: '/ex/ample', view: 'client/url/example.html'}*/
-            {path: '/', view: '../index.html'}
+            {path: '/', view: 'index.html'}
         ];
         
         _.each(_routes, function(route) {

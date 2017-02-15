@@ -10,32 +10,20 @@ var browserSync = require('browser-sync');
 var wiredep     = require('wiredep').stream;
 
 // executes without any additional args; the default
-gulp.task('default', [/*'wiredep-inject',*/ 'watch-changes', 'run']);
+gulp.task('default', ['watch-changes', 'run']);
 
 gulp.task('watch-changes', function() {
-    gulp.watch('src/**/*.js', ['jshint', 'uglify-js']); 
+    gulp.watch('src/**/*.js', ['jshint', 'uglify-js']);
 });
 
 // execute to start up the server
 gulp.task('run', ['inject', 'start-server']);
 
 gulp.task('start-server', function() {
-    /*livereload.listen({port:8081, basePath: 'out'});
-    
-    nodemon({
-        script: 'server.js',
-        ext: 'html js css',
-        env: {
-            env: 'development'
-        }
-    }).on('restart', function() {
-        gulp.src('server.js')
-            .pipe(livereload({port:8081}));
-    });*/
     browserSync.init({
         startPath: '/',
         port: 8080,
-        server: {baseDir: 'out'}
+        server: {baseDir: ['out', 'src']}
     });
 });
 
@@ -69,8 +57,8 @@ gulp.task('inject', function() {
     ]);
     
     gulp.src('src/index.html')
-        .pipe(inject(injStyles))
-        .pipe(inject(injScripts))
+        .pipe(inject(injStyles, {addRootSlash: false}))
+        .pipe(inject(injScripts,{addRootSlash: false}))
         .pipe(wiredep())
         .pipe(gulp.dest('out'));
 });
