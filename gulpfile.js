@@ -10,6 +10,7 @@ var inject      = require('gulp-inject');
 var livereload  = require('gulp-livereload');
 var browserSync = require('browser-sync');
 var wiredep     = require('wiredep').stream;
+var proxyMid    = require('http-proxy-middleware');
 var sysConf     = require('./gulp/sys-conf.js');
 
 // executes without any additional args; the default
@@ -32,7 +33,21 @@ gulp.task('start-server', function() {
             baseDir: ['out', sysConf.paths.src],
             routes: {
                 '/bower_components': 'bower_components'
-            }
+            },
+            middleware: [
+                proxyMid(
+                    ['/api/**'],
+                    {
+                        target: {
+                            host: sysConf.server.host,
+                            port: sysConf.server.port,
+                            protocol: 'http' // TODO change to https
+                        },
+                        xfwd: true,
+                        changeOrigin: true
+                    }
+                )
+            ]
         }
     });
 });
