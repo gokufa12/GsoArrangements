@@ -23,7 +23,9 @@
   ],
   "dependencies": {
     "lodash": "^4.17.3",
-    "bootstrap": "^3.3.7"
+    "bootstrap": "^3.3.7",
+    "angular": "^1.6.3",
+    "angular-route": "^1.6.3"
   },
   "overrides": {
     "bootstrap": {

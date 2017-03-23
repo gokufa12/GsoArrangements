@@ -20,9 +20,9 @@ var node;
 gulp.task('default', ['run']);
 
 gulp.task('watch-changes', function() {
-    gulp.watch(path.join(sysConf.paths.src, '/**/*.js'), ['jshint', 'bs-reload']);
-    gulp.watch(path.join(sysConf.paths.src, '/**/*.html'), ['bs-reload']);
-    gulp.watch(path.join(sysConf.paths.src, '/**/*.css'), ['bs-reload']);
+    gulp.watch(path.join(sysConf.paths.src, '/**/*.js'), ['inject', 'jshint', 'bs-reload']);
+    gulp.watch(path.join(sysConf.paths.src, '/**/*.html'), ['inject', 'bs-reload']);
+    gulp.watch(path.join(sysConf.paths.src, '/**/*.css'), ['inject', 'bs-reload']);
 });
 
 // execute to start up the server

@@ -10,11 +10,40 @@
         <!-- endinject -->
     </head>
     
-    <body ng-controller=""> <!--TODO add ng controller-->
-        <div id="donkey">
-            <span class="swag">yolo</span>
-            <span>not quite so yolo</span>
+    <body> <!--TODO add ng controller-->
+        
+        <!-- header start -->
+        <nav class="navbar navbar-inverse">
+          <div class="container-fluid">
+            <div class="navbar-header">
+              <a class="navbar-brand" href="/">GSO Arrangements</a>
+            </div>
+            <ul class="nav navbar-nav">
+              <li id="home"><a href="/">Home</a></li>
+              <!--<li><a href="./user">User</a></li>-->
+              <!--<li><a href="./song">Song</a></li>-->
+              <!--<li><a href="./arrangements">Arrangements</a></li> -->
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+              <li id="signup"><a href="/signup"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
+              <li id="login"><a href="/login"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+            </ul>
+          </div>
+        </nav>
+        <!-- header end -->
+        
+        <div class="container-fluid jumbotron">
+            <div ng-view></div>
         </div>
+        
+        <!-- footer start -->
+        <div class="footer">
+            <div>
+                <p class="text-center text-muted">© Copyright Bryan Doyle - 2016</p>
+                <p class="text-center text-muted"><a href="mailto:bdoyle@turnkey-technology.com?subject=GSO Arrangements">Contact Me</a></p>
+            </div>
+        </div>
+        <!-- footer end -->
         
         <!-- bower:js -->
         <!-- endbower -->
