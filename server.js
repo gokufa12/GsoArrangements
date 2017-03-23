@@ -22,7 +22,7 @@ var SampleApp = function() {
     self.setupVariables = function() {
         //  Set the environment variables we need.
         self.ipaddress = process.env.OPENSHIFT_NODEJS_IP || process.env.C9_NODEJS_IP;
-        self.port      = process.env.OPENSHIFT_NODEJS_PORT || 8080;
+        self.port      = process.env.OPENSHIFT_NODEJS_PORT || 8081;
 
         if (typeof self.ipaddress === "undefined") {
             //  Log errors on OpenShift but continue w/ 127.0.0.1 - this
@@ -151,7 +151,7 @@ var SampleApp = function() {
         self.app.use(bodyParser.json());
         self.app.use(bodyParser.urlencoded({ extended: false }));
         self.app.use(cookieParser());
-        self.app.use(express.static(path.join(__dirname, 'public')));
+        //self.app.use(express.static(path.join(__dirname, 'public')));
         self.app.use(self.redirect);
         
         self.app.use('/users/*', jwtCheck);

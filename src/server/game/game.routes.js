@@ -5,9 +5,11 @@ module.exports = function(app, router) {
     
     /* CRUD operations below */
     
-    app.get('/api/v1/game', gameCtrlr.getGamesAll);
+    app.route('/api/v1/game')
+        .get(gameCtrlr.getGamesAll);
     
     /* Miscellaneous operations below */
     
-    app.get('/api/game/testrt', gameCtrlr.testFcn);
+    app.route('/api/game/testrt')
+        .get(gameCtrlr.testFcn);
 };

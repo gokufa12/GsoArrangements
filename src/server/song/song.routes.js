@@ -5,20 +5,27 @@ module.exports = function(app, router) {
     
     /* CRUD operations below */
     
-    app.post('/api/v1/song', songCtrlr.createSong);
+    app.route('/api/v1/song')
+        .post(songCtrlr.createSong);
     
-    app.get('/api/v1/song', songCtrlr.getSongsAll);
+    app.route('/api/v1/song')
+        .get(songCtrlr.getSongsAll);
     
-    app.get('/api/v1/song/id', songCtrlr.getSongsSingle);
+    app.route('/api/v1/song/id')
+        .get(songCtrlr.getSongsSingle);
     
-    app.put('/api/v1/song', songCtrlr.updateSong);
+    app.route('/api/v1/song')
+        .put(songCtrlr.updateSong);
     
-    app.delete('/api/v1/song/:song_id', songCtrlr.deleteSong);
+    app.route('/api/v1/song/:song_id')
+        .delete(songCtrlr.deleteSong);
     
     /* Miscellaneous operations below */
     
-    app.get('/api/song/testrt', songCtrlr.testFcn);
+    app.route('/api/song/testrt')
+        .get(songCtrlr.testFcn);
     
     // TODO is it preferred to use /api/v1/song/csv?
-    app.get('/api/song/csv', songCtrlr.csv);
+    app.route('/api/song/csv')
+        .get(songCtrlr.csv);
 };

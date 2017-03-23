@@ -11,7 +11,10 @@ var livereload  = require('gulp-livereload');
 var browserSync = require('browser-sync');
 var wiredep     = require('wiredep').stream;
 var proxyMid    = require('http-proxy-middleware');
+var spawn       = require('child_process').spawn;
+
 var sysConf     = require('./gulp/sys-conf.js');
+var node;
 
 // executes without any additional args; the default
 gulp.task('default', ['run']);
@@ -23,7 +26,7 @@ gulp.task('watch-changes', function() {
 });
 
 // execute to start up the server
-gulp.task('run', ['inject', 'start-server', 'watch-changes']);
+gulp.task('run', ['kickoff-backend', 'inject', 'start-server', 'watch-changes']);
 
 gulp.task('start-server', function() {
     browserSync.init({
@@ -90,4 +93,9 @@ gulp.task('inject', function() {
         .pipe(inject(injScripts, {addRootSlash: false, ignorePath: sysConf.paths.src}))
         .pipe(wiredep(_.extend({}, sysConf.wiredep)))
         .pipe(gulp.dest('out'));
+});
+
+gulp.task('kickoff-backend', function() {
+    if (node) node.kill();
+    node = spawn('node', ['./server.js'], {stdio: 'inherit'});
 });

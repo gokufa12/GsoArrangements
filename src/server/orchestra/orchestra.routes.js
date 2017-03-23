@@ -5,9 +5,11 @@ module.exports = function(app, router) {
     
     /* CRUD operations below */
     
-    app.get('/api/v1/orchestra', orchestraCtrlr.getOrchestrasAll);
+    app.route('/api/v1/orchestra')
+        .get(orchestraCtrlr.getOrchestrasAll);
     
     /* Miscellaneous operations below */
     
-    app.get('/api/orchestra/testrt', orchestraCtrlr.testFcn);
+    app.route('/api/orchestra/testrt')
+        .get(orchestraCtrlr.testFcn);
 };

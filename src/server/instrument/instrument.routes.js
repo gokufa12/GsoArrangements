@@ -5,9 +5,11 @@ module.exports = function(app, router) {
     
     /* CRUD operations below */
     
-    app.get('/api/v1/instrument', instrumentCtrlr.getInstrumentsAll);
+    app.route('/api/v1/instrument')
+        .get(instrumentCtrlr.getInstrumentsAll);
     
     /* Miscellaneous operations below */
     
-    app.get('/api/instrument/testrt', instrumentCtrlr.testFcn);
+    app.route('/api/instrument/testrt')
+        .get(instrumentCtrlr.testFcn);
 };

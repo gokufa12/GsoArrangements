@@ -5,17 +5,23 @@ module.exports = function(app, router) {
     
     /* CRUD operations below */
     
-    app.post('/api/v1/user', userCtrlr.createUser);
+    app.route('/api/v1/user')
+        .post(userCtrlr.createUser);
     
-    app.get('/api/v1/user', userCtrlr.getUsersAll);
+    app.route('/api/v1/user')
+        .get(userCtrlr.getUsersAll);
     
-    app.get('/api/v1/user/id', userCtrlr.getUsersSingle);
+    app.route('/api/v1/user/id')
+        .get(userCtrlr.getUsersSingle);
     
-    app.put('/api/v1/user/id', userCtrlr.updateUser);
+    app.route('/api/v1/user/id')
+        .put(userCtrlr.updateUser);
     
-    app.delete('/api/v1/user/id', userCtrlr.deleteUser);
+    app.route('/api/v1/user/id')
+        .delete(userCtrlr.deleteUser);
     
     /* Miscellaneous operations below */
     
-    app.get('/api/user/testrt', userCtrlr.testFcn);
+    app.route('/api/user/testrt')
+        .get(userCtrlr.testFcn);
 };
