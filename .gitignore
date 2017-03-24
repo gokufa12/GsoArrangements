@@ -45,3 +45,8 @@ Temporary Items
 # node modules
 node_modules/*
 
+# bower
+bower_components
+
+# minified program - we aren't concerned with uploading this
+out/

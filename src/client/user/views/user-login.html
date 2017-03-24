@@ -1,0 +1,30 @@
+<div>
+    <div>
+        <h1 class="header">GSO Login</h1>
+        <hr>
+        <h2 class="header">Welcome to the Beta</h2>
+    </div>
+    <div class="container-fluid user-form ng-cloak">
+        <form class="form-horizontal">
+            <fieldset>
+              <legend>Login</legend>
+              <div class="form-group">
+                <label class="col-lg-2 control-label" for="inputTitle">Email</label>
+                <div class="col-lg-10">
+                  <input class="form-control" id="intputTitle" type="text" placeholder="Enter email..." ng-model="formData.email">
+                </div>
+                <label class="col-lg-2 control-label" for="inputPass">Password</label>
+                <div class="col-lg-10">
+                  <input class="form-control" id="intputPass" type="password" placeholder="Enter password..." ng-model="formData.password">
+                </div>
+              </div>
+              <div class="form-group">
+                <div class="col-lg-10 col-lg-offset-2">
+                  <button class="btn btn-primary" type="submit" ng-click="signIn()">Sign In</button>
+                </div>
+              </div>
+            </fieldset>
+        </form>
+        <br>
+    </div>
+</div>

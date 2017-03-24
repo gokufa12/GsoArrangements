@@ -1,0 +1,38 @@
+{
+  "name": "GsoArrangements",
+  "description": "Tracker for Videogame Music Arrangements",
+  "main": "server.js",
+  "authors": [
+    "bryan <>",
+    "alex <ameasday@freedomconsultinggroup.com>"
+  ],
+  "license": "MIT",
+  "keywords": [
+    "OpenShift",
+    "Node.js",
+    "application",
+    "openshift"
+  ],
+  "homepage": "https://github.com/gokufa12/GsoArrangements",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "lodash": "^4.17.3",
+    "angular": "^1.6.3",
+    "angular-route": "^1.6.3",
+    "bootswatch-dist": "slate"
+  },
+  "overrides": {
+    "bootswatch-dist": {
+      "main": [
+        "js/bootstrap.js",
+        "css/bootstrap.min.css"
+      ]
+    }
+  }
+}
