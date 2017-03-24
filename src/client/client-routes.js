@@ -20,7 +20,7 @@
             // example routing below: create your own relative paths!
             /*{path: '/ex/ample', view: 'client/url/example.html'}*/
             
-            {path: '/', view: 'client/common/views/home.html'},
+            {path: '/home', view: 'client/common/views/home.html'},
             
             {path: '/signup', view: 'client/user/views/user-signup.html'},
             {path: '/login', view: 'client/user/views/user-login.html'}
@@ -31,7 +31,7 @@
         });
         
         $routeProvider.otherwise({
-            redirectTo: '/'   
+            redirectTo: '/home'   
         });
         
         $locationProvider.html5Mode({

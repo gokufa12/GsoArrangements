@@ -9,12 +9,17 @@ var nodemon     = require('gulp-nodemon');
 var inject      = require('gulp-inject');
 var livereload  = require('gulp-livereload');
 var browserSync = require('browser-sync');
+var bsSpa       = require('browser-sync-spa');
 var wiredep     = require('wiredep').stream;
 var proxyMid    = require('http-proxy-middleware');
 var spawn       = require('child_process').spawn;
 
 var sysConf     = require('./gulp/sys-conf.js');
 var node;
+
+browserSync.use(bsSpa({
+    selector: '[ng-app]'
+}));
 
 // executes without any additional args; the default
 gulp.task('default', ['run']);
