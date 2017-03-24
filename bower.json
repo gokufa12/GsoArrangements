@@ -23,16 +23,15 @@
   ],
   "dependencies": {
     "lodash": "^4.17.3",
-    "bootstrap": "^3.3.7",
     "angular": "^1.6.3",
-    "angular-route": "^1.6.3"
+    "angular-route": "^1.6.3",
+    "bootswatch-dist": "slate"
   },
   "overrides": {
-    "bootstrap": {
+    "bootswatch-dist": {
       "main": [
-        "dist/js/bootstrap.js",
-        "dist/css/bootstrap.min.css",
-        "less/bootstrap.less"
+        "js/bootstrap.js",
+        "css/bootstrap.min.css"
       ]
     }
   }
