@@ -1,38 +1,48 @@
 <%layout('layout') -%>    
     <div ng-app="nodeCrud" ng-controller="addSongController">
         <div>
+            <div>
+                <h2 class="header">Manage Arrangements</h1>
+            </div>
             <div class="container-fluid song-form ng-cloak">
+                
                 <form class="form-horizontal">
                     <fieldset>
-                      <legend>Add Song</legend>
-                      <div class="form-group">
-                        <label class="col-lg-2 control-label" for="inputTitle">Title</label>
-                        <div class="col-lg-10">
+                      <legend align="center">Add Song</legend>
+                      <div class="form-group" align="center">
+                        <label class="col-lg-3 control-label" for="inputTitle">Title</label>
+                        <div class="col-lg-6">
                           <input class="form-control" id="intputTitle" type="text" placeholder="Title" ng-model="formData.title">
                         </div>
-                        <label class="col-lg-2 control-label" for="inputTitle">Game Series</label>
-                        <div class="col-lg-10">
+                      </div>
+                      <div class="form-group">
+                        <label class="col-lg-3 control-label" for="inputTitle">Game Series</label>
+                        <div class="col-lg-6">
                           <input class="form-control" id="intputTitle" type="text" placeholder="Game Title/Series" ng-model="formData.game_title">
                         </div>
-                        <label class="col-lg-2 control-label" for="inputTitle">Associated Group</label>
-                        <div class="col-lg-10">
+                      </div>
+                      <div class="form-group">
+                        <label class="col-lg-3 control-label" for="inputTitle">Associated Group</label>
+                        <div class="col-lg-6">
                           <select class="form-control ng-cloak" name="orchestraSelect" id="orchestraSelect" ng-model="formData.orchestra_id">
                             <option ng-repeat="orchestra in orchestraData" value="{{orchestra.orchestra_id}}">{{orchestra.orchestra_name}}</option>
                           </select>
                         </div>
-                        <label class="col-lg-2 control-label" for="inputTitle">Arrangement Date</label>
-                        <div class="col-lg-10">
+                      </div>
+                      <div class="form-group">
+                        <label class="col-lg-3 control-label" for="inputTitle">Arrangement Date</label>
+                        <div class="col-lg-6">
                           <input class="form-control" id="intputTitle" type="month" ng-model="formData.date">
-                        </div>
-                        <label class="col-lg-2 control-label" for="inputTitle">Arrangement Duration</label>
-                        <div class="col-lg-10">
-                          <input class="form-control" id="intputTitle" type="number" placeholder="Enter duration in minutes..." ng-model="formData.duration">
                         </div>
                       </div>
                       <div class="form-group">
-                        <div class="col-lg-10 col-lg-offset-2">
-                          <button class="btn btn-primary" type="submit" ng-click="createSong()">Submit</button>
+                        <label class="col-lg-3 control-label" for="inputTitle">Arrangement Duration</label>
+                        <div class="col-lg-6">
+                          <input class="form-control" id="intputTitle" type="number" placeholder="Enter duration in seconds..." ng-model="formData.duration">
                         </div>
+                      </div>
+                      <div class="input-group col-lg-6 col-lg-offset-3">
+                        <button class="btn btn-primary" type="submit" ng-click="createSong()">Submit</button>
                       </div>
                     </fieldset>
                 </form>

@@ -3,11 +3,12 @@
     <script type="text/javascript" src="/javascripts/ng-file-upload-shim.min.js"></script>
     <div class="container-fluid song-form ng-cloak" ng-app="fileupload">
         <div>
-            <h1 class="header">Add Song CSV</h1>
+            <h2 class="header">Add Song CSV</h1>
         </div>
         <div>
             <form ng-controller="MyCtrl as up" name="up.upload_form">
                 <!--Upload a CSV of songs -->
+                <div class="form-group">
                 <input
                     class="form-control"
                     type="file" 
@@ -21,7 +22,8 @@
                  <i ng-show="up.upload_form.file.$error.required">*required</i><br>
                  <i ng-show="up.upload_form.file.$error.maxSize">File too large 
                  {{up.file.size / 1000000|number:1}}MB: max 20M</i>
-                 <button class="btn btn-primary" type="submit" ng-click="up.submit()">submit</button>
+                 </div>
+                 <button class="btn btn-primary" type="submit" ng-click="up.submit()">Submit</button>
                  <p>{{up.progress}}</p>
             </form>
             <br>

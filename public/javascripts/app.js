@@ -1,6 +1,6 @@
 angular.module('nodeCrud', ['trNgGrid'])
 .run(function () {
-    TrNgGrid.defaultColumnOptions.displayAlign="center";
+    TrNgGrid.defaultColumnOptions.displayAlign="center bottom";
     TrNgGrid.defaultPagerMinifiedPageCountThreshold = 3;
 })
 .controller('userController', function($scope, $http) {
