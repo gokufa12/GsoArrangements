@@ -37,26 +37,25 @@ gulp.task('start-server', function() {
     browserSync.init({
         startPath: '/',
         port: 8080,
+        logConnections: true,
         server: {
             baseDir: ['out', sysConf.paths.src],
             routes: {
                 '/bower_components': 'bower_components'
-            },
-            middleware: [
-                proxyMid(
-                    ['/api/**'],
-                    {
-                        target: {
-                            host: sysConf.server.host,
-                            port: sysConf.server.port,
-                            protocol: 'http' // TODO change to https
-                        },
-                        xfwd: true,
-                        changeOrigin: true
+            }
+        },
+        middleware: [
+            proxyMid(
+                ['/api/**'],
+                {
+                    target: {
+                        host: sysConf.server.host,
+                        port: sysConf.server.port,
+                        protocol: 'http' // TODO change to https
                     }
-                )
-            ]
-        }
+                }
+            )
+        ]
     });
 });
 

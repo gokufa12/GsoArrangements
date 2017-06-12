@@ -1,5 +1,5 @@
 {
-  "name": "GsoArrangements",
+  "name": "gsoarrangements",
   "description": "Tracker for Videogame Music Arrangements",
   "main": "server.js",
   "authors": [
@@ -25,7 +25,8 @@
     "lodash": "^4.17.3",
     "angular": "^1.6.3",
     "angular-route": "^1.6.3",
-    "bootswatch-dist": "slate"
+    "jquery" : "^2.2.1",
+    "bootswatch-dist": "yeti"
   },
   "overrides": {
     "bootswatch-dist": {
