@@ -46,7 +46,7 @@ gulp.task('start-server', function() {
         },
         middleware: [
             proxyMid(
-                ['/api/**'],
+                ['/api/**','/signup/*'],
                 {
                     target: {
                         host: sysConf.server.host,

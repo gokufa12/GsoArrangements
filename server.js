@@ -87,19 +87,6 @@ var SampleApp = function() {
     /*  ================================================================  */
     /*  App server functions (main app logic here).                       */
     /*  ================================================================  */
-
-    /**
-     *  Create the routing table entries + handlers for the application.
-     */
-    self.createRoutes = function() {
-        var routes = require('./routes/index');
-        var users = require('./routes/users');
-        
-        self.routes = { };
-
-        self.routes['routes'] = routes;
-        self.routes['users'] = users;        
-    };
     
     self.redirect = function redirectSec(req, res, next) {
             if (req.headers['x-forwarded-proto'] == 'http') {
@@ -115,22 +102,17 @@ var SampleApp = function() {
      *  the handlers.
      */
     self.initializeServer = function() {
-        self.createRoutes();
         self.app = express();
         
-        // view engine setup
+        // setup
         var path = require('path');
         var favicon = require('serve-favicon');
         var logger = require('morgan');
         var cookieParser = require('cookie-parser');
         var bodyParser = require('body-parser');
-        //var engine = require('ejs-locals');
+        
         var serverRoutes = require('./src/server/server-routes.js');
         
-        //self.app.set('views', path.join(__dirname, 'views'));
-        //self.app.engine('ejs', engine);
-        //self.app.set('view engine', 'ejs');
-        //self.app.set('view engine', 'jade');
         self.app.set('secret','ThisIsMySecretPassword');
         //jwt
         var jwt = require('express-jwt');
@@ -147,18 +129,18 @@ var SampleApp = function() {
         
         // uncomment after placing your favicon in /public
         //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+
         self.app.use(logger('dev'));
         self.app.use(bodyParser.json());
         self.app.use(bodyParser.urlencoded({ extended: false }));
         self.app.use(cookieParser());
+
         //self.app.use(express.static(path.join(__dirname, 'public')));
         self.app.use(self.redirect);
-        
+
         self.app.use('/users/*', jwtCheck);
         self.app.use('/users', jwtCheck);
         self.app.use('/api/v1/*/id', jwtCheck);
-        /*self.app.use('/', self.routes['routes']);
-        self.app.use('/users', self.routes['users']);*/
         serverRoutes(self.app); // hooks in express routes
         
         // catch 404 and forward to error handler
