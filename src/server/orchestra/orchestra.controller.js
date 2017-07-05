@@ -1,10 +1,14 @@
-// TODO move this into a better place later...
-var db = require('../../../private/database.js');
+var db = require('../database.js');
+
+/* SQL */
+var sql = {
+    orchestra_select_all : "SELECT * FROM orchestra"
+};
 
 /* CRUD operations for INSTRUMENTs */
 
 exports.getOrchestrasAll = function(req, res) {
-    db.executeQuery(db.orchestra_select_all,[],res);
+    db.executeQuery(sql.orchestra_select_all,[],res);
 };
 
 /* Miscellaneous functions for INSTRUMENTs */

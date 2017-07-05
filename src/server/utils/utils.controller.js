@@ -1,4 +1,3 @@
-// TODO move this into a better place later...
 var db = require('../database.js');
 var jwtoken = require('jsonwebtoken');
 var nodemailer = require('nodemailer');

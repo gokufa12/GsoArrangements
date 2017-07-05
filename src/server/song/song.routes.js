@@ -22,10 +22,6 @@ module.exports = function(app, router) {
     
     /* Miscellaneous operations below */
     
-    app.route('/api/song/testrt')
-        .get(songCtrlr.testFcn);
-    
-    // TODO is it preferred to use /api/v1/song/csv?
-    app.route('/api/song/csv')
-        .get(songCtrlr.csv);
+    app.route('/api/v1/song/csv')
+        .post(songCtrlr.loadCSV);
 };

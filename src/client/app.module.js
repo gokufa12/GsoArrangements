@@ -44,14 +44,15 @@
                     .then(function(data) {
                         $scope.formData = {};
                         $window.alert('Please check for verification email.');
-                    }), function(error) {
+                    }, function(error) {
                         $window.alert('Error occured while signing up - try a different email');
                         console.error('Error: ' + error);
-                    }},
+                    });
+                },
                 function(error) {
                     $window.alert('Error occured while signing up');
                     console.error('Error: ' + error);
                 });          
         };
-    })
+    });
 })();
